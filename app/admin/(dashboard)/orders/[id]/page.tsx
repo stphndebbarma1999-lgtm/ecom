@@ -1,13 +1,27 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getOrderById } from "@/lib/db/orders";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, cn } from "@/lib/utils";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import { updateOrderStatusAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
 const statuses = ["Processing", "Shipped", "Delivered", "Cancelled"] as const;
+
+const paymentMethodLabel: Record<string, string> = {
+  upi: "UPI",
+  card: "Card",
+  netbanking: "Net Banking",
+  cod: "Cash on Delivery",
+};
+
+const paymentStatusColor: Record<string, string> = {
+  paid: "bg-emerald-50 text-emerald-700",
+  pending: "bg-neutral-100 text-neutral-700",
+  failed: "bg-red-50 text-red-700",
+  cod: "bg-neutral-100 text-neutral-700",
+};
 
 export default async function AdminOrderDetailPage({
   params,
@@ -37,7 +51,7 @@ export default async function AdminOrderDetailPage({
         </Link>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
         <div className="border border-neutral-200 bg-white p-5">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Customer</h2>
           <p className="mt-2 text-sm font-medium text-neutral-900">{order.customerName}</p>
@@ -58,6 +72,26 @@ export default async function AdminOrderDetailPage({
           <p className="text-sm text-neutral-600">
             {addr.city}, {addr.state} - {addr.pinCode}
           </p>
+        </div>
+
+        <div className="border border-neutral-200 bg-white p-5">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">Payment</h2>
+          <p className="mt-2 text-sm text-neutral-900">
+            {paymentMethodLabel[order.paymentMethod] ?? order.paymentMethod}
+          </p>
+          <span
+            className={cn(
+              "mt-2 inline-block px-2 py-1 text-xs font-semibold capitalize",
+              paymentStatusColor[order.paymentStatus]
+            )}
+          >
+            {order.paymentStatus}
+          </span>
+          {order.razorpayPaymentId && (
+            <p className="mt-2 truncate text-xs text-neutral-400" title={order.razorpayPaymentId}>
+              {order.razorpayPaymentId}
+            </p>
+          )}
         </div>
       </div>
 

@@ -1,4 +1,4 @@
--- NOVA ecommerce schema
+-- Drapesly ecommerce schema
 -- Run this once in the Supabase SQL Editor (Project -> SQL Editor -> New query -> paste -> Run).
 -- Safe to re-run: uses "if not exists" / "or replace" where possible.
 
@@ -55,6 +55,9 @@ create table if not exists orders (
   shipping_address jsonb not null,
   delivery_method text not null default 'standard' check (delivery_method in ('standard', 'express')),
   payment_method text not null default 'cod' check (payment_method in ('upi', 'card', 'netbanking', 'cod')),
+  payment_status text not null default 'pending' check (payment_status in ('pending', 'paid', 'failed', 'cod')),
+  razorpay_order_id text,
+  razorpay_payment_id text,
   status text not null default 'Processing' check (status in ('Processing', 'Shipped', 'Delivered', 'Cancelled')),
   subtotal numeric(10, 2) not null,
   discount numeric(10, 2) not null default 0,

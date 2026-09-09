@@ -18,9 +18,9 @@ import { useAuth } from "@/context/AuthContext";
 import type { Order, Address } from "@/types/auth";
 
 const MOCK_ORDERS: Order[] = [
-  { id: "NOVA10234", date: "2026-08-28", status: "Delivered", total: 3298, itemCount: 2 },
-  { id: "NOVA10198", date: "2026-08-12", status: "Shipped", total: 1899, itemCount: 1 },
-  { id: "NOVA10142", date: "2026-07-30", status: "Processing", total: 5499, itemCount: 3 },
+  { id: "DRAPESLY10234", date: "2026-08-28", status: "Delivered", total: 3298, itemCount: 2 },
+  { id: "DRAPESLY10198", date: "2026-08-12", status: "Shipped", total: 1899, itemCount: 1 },
+  { id: "DRAPESLY10142", date: "2026-07-30", status: "Processing", total: 5499, itemCount: 3 },
 ];
 
 const MOCK_ADDRESSES: Address[] = [

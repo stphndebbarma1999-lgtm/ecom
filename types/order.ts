@@ -1,6 +1,7 @@
 export type OrderStatus = "Processing" | "Shipped" | "Delivered" | "Cancelled";
 export type DeliveryMethod = "standard" | "express";
 export type PaymentMethod = "upi" | "card" | "netbanking" | "cod";
+export type PaymentStatus = "pending" | "paid" | "failed" | "cod";
 
 export interface OrderShippingAddress {
   fullName: string;
@@ -33,6 +34,9 @@ export interface Order {
   shippingAddress: OrderShippingAddress;
   deliveryMethod: DeliveryMethod;
   paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
   status: OrderStatus;
   subtotal: number;
   discount: number;
@@ -49,6 +53,9 @@ export interface CreateOrderInput {
   shippingAddress: OrderShippingAddress;
   deliveryMethod: DeliveryMethod;
   paymentMethod: PaymentMethod;
+  paymentStatus: PaymentStatus;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
   subtotal: number;
   discount: number;
   shipping: number;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { homepageConfig } from "@/config/homepage";
+import { siteConfig } from "@/config/site";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import Button from "@/components/ui/Button";
 import { formatPrice, cn } from "@/lib/utils";
@@ -48,7 +49,7 @@ export default function Hero() {
           <div className="relative h-full w-full overflow-hidden bg-neutral-200">
             <ImageWithFallback
               src={hero.image}
-              alt="NOVA seasonal collection"
+              alt={`${siteConfig.name} seasonal collection`}
               fill
               priority
               sizes="(max-width: 1024px) 90vw, 45vw"

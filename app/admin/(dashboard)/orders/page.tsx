@@ -11,6 +11,13 @@ const statusColor: Record<string, string> = {
   Cancelled: "bg-red-50 text-red-700",
 };
 
+const paymentStatusColor: Record<string, string> = {
+  paid: "text-emerald-700",
+  pending: "text-neutral-500",
+  failed: "text-red-600",
+  cod: "text-neutral-500",
+};
+
 export default async function AdminOrdersPage() {
   const orders = await listOrders();
 
@@ -27,6 +34,7 @@ export default async function AdminOrdersPage() {
               <th className="px-4 py-3">Customer</th>
               <th className="px-4 py-3">Items</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Payment</th>
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3">Date</th>
             </tr>
@@ -56,6 +64,9 @@ export default async function AdminOrdersPage() {
                     {order.status}
                   </span>
                 </td>
+                <td className={cn("px-4 py-3 text-xs font-semibold capitalize", paymentStatusColor[order.paymentStatus])}>
+                  {order.paymentStatus}
+                </td>
                 <td className="px-4 py-3 font-medium text-neutral-900">{formatPrice(order.total)}</td>
                 <td className="px-4 py-3 text-neutral-500">
                   {new Date(order.createdAt).toLocaleDateString("en-IN", {
@@ -68,7 +79,7 @@ export default async function AdminOrdersPage() {
             ))}
             {orders.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-neutral-400">
+                <td colSpan={7} className="px-4 py-10 text-center text-neutral-400">
                   No orders yet.
                 </td>
               </tr>

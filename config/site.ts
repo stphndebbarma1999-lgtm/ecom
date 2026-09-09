@@ -5,27 +5,27 @@
  */
 
 export const siteConfig = {
-  name: "NOVA",
+  name: "Drapesly",
   tagline: "Style, curated.",
   description:
-    "NOVA is a premium fashion, footwear and beauty destination — curated collections for men, women and everyday beauty essentials.",
-  url: "https://www.nova-store.example",
+    "Drapesly is a premium fashion, footwear and beauty destination — curated collections for men, women and everyday beauty essentials.",
+  url: "https://www.drapesly.example",
 
   logo: {
-    text: "NOVA",
+    text: "Drapesly",
   },
 
   contact: {
-    email: "support@nova-store.example",
+    email: "support@drapesly.example",
     phone: "+91 98765 43210",
     hours: "Mon – Sat, 10:00 AM – 7:00 PM IST",
-    address: "NOVA Retail HQ, Bengaluru, Karnataka, India",
+    address: "Drapesly Retail HQ, Bengaluru, Karnataka, India",
   },
 
   social: {
-    instagram: "https://instagram.com/nova",
-    facebook: "https://facebook.com/nova",
-    youtube: "https://youtube.com/@nova",
+    instagram: "https://instagram.com/drapesly",
+    facebook: "https://facebook.com/drapesly",
+    youtube: "https://youtube.com/@drapesly",
   },
 
   currency: {

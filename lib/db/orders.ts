@@ -1,5 +1,6 @@
 import "server-only";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { siteConfig } from "@/config/site";
 import type { CreateOrderInput, Order, OrderItem, OrderStatus } from "@/types/order";
 
 interface OrderRow {
@@ -11,6 +12,9 @@ interface OrderRow {
   shipping_address: Order["shippingAddress"];
   delivery_method: Order["deliveryMethod"];
   payment_method: Order["paymentMethod"];
+  payment_status: Order["paymentStatus"];
+  razorpay_order_id: string | null;
+  razorpay_payment_id: string | null;
   status: OrderStatus;
   subtotal: number;
   discount: number;
@@ -56,6 +60,9 @@ function mapOrderRow(row: OrderRow, items: OrderItemRow[]): Order {
     shippingAddress: row.shipping_address,
     deliveryMethod: row.delivery_method,
     paymentMethod: row.payment_method,
+    paymentStatus: row.payment_status,
+    razorpayOrderId: row.razorpay_order_id ?? undefined,
+    razorpayPaymentId: row.razorpay_payment_id ?? undefined,
     status: row.status,
     subtotal: Number(row.subtotal),
     discount: Number(row.discount),
@@ -66,9 +73,11 @@ function mapOrderRow(row: OrderRow, items: OrderItemRow[]): Order {
   };
 }
 
+const ORDER_PREFIX = siteConfig.name.toUpperCase().replace(/[^A-Z0-9]/g, "");
+
 function generateOrderNumber(): string {
   const random = Math.floor(10000 + Math.random() * 90000);
-  return `NOVA${random}`;
+  return `${ORDER_PREFIX}${random}`;
 }
 
 export async function createOrder(input: CreateOrderInput): Promise<Order> {
@@ -84,6 +93,9 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
       shipping_address: input.shippingAddress,
       delivery_method: input.deliveryMethod,
       payment_method: input.paymentMethod,
+      payment_status: input.paymentStatus,
+      razorpay_order_id: input.razorpayOrderId || null,
+      razorpay_payment_id: input.razorpayPaymentId || null,
       subtotal: input.subtotal,
       discount: input.discount,
       shipping: input.shipping,

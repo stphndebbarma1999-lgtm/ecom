@@ -82,7 +82,7 @@ const specs: Spec[] = [
   {
     id: "men-tshirt-01",
     name: "Oversized Fit Printed Mesh T-Shirt",
-    brand: "NOVA Men",
+    brand: "Drapesly Men",
     department: "men",
     category: "t-shirts",
     kind: "top",
@@ -133,7 +133,7 @@ const specs: Spec[] = [
   {
     id: "men-shirt-02",
     name: "Linen Blend Casual Shirt",
-    brand: "NOVA Men",
+    brand: "Drapesly Men",
     department: "men",
     category: "shirts",
     kind: "top",
@@ -201,7 +201,7 @@ const specs: Spec[] = [
   {
     id: "men-jeans-02",
     name: "Straight Fit Jeans",
-    brand: "NOVA Men",
+    brand: "Drapesly Men",
     department: "men",
     category: "jeans",
     kind: "bottom",
@@ -233,7 +233,7 @@ const specs: Spec[] = [
   {
     id: "men-trouser-02",
     name: "Relaxed Fit Trousers",
-    brand: "NOVA Men",
+    brand: "Drapesly Men",
     department: "men",
     category: "trousers",
     kind: "bottom",
@@ -414,7 +414,7 @@ const specs: Spec[] = [
   {
     id: "men-sunglasses-01",
     name: "Aviator Sunglasses",
-    brand: "NOVA Men",
+    brand: "Drapesly Men",
     department: "men",
     category: "sunglasses",
     kind: "accessory",
@@ -430,7 +430,7 @@ const specs: Spec[] = [
   {
     id: "men-sunglasses-02",
     name: "Classic Wayfarer Sunglasses",
-    brand: "NOVA Men",
+    brand: "Drapesly Men",
     department: "men",
     category: "sunglasses",
     kind: "accessory",
@@ -516,7 +516,7 @@ const specs: Spec[] = [
   {
     id: "women-leggings-01",
     name: "High Waist Leggings",
-    brand: "NOVA Women",
+    brand: "Drapesly Women",
     department: "women",
     category: "leggings",
     kind: "bottom",
@@ -533,7 +533,7 @@ const specs: Spec[] = [
   {
     id: "women-leggings-02",
     name: "Seamless Leggings",
-    brand: "NOVA Women",
+    brand: "Drapesly Women",
     department: "women",
     category: "leggings",
     kind: "bottom",
@@ -631,7 +631,7 @@ const specs: Spec[] = [
   {
     id: "women-jumpsuit-02",
     name: "Wide Leg Playsuit",
-    brand: "NOVA Women",
+    brand: "Drapesly Women",
     department: "women",
     category: "jumpsuits",
     kind: "top",
@@ -681,7 +681,7 @@ const specs: Spec[] = [
   {
     id: "women-sunglasses-01",
     name: "Cat Eye Sunglasses",
-    brand: "NOVA Women",
+    brand: "Drapesly Women",
     department: "women",
     category: "sunglasses",
     kind: "accessory",
@@ -697,7 +697,7 @@ const specs: Spec[] = [
   {
     id: "women-sunglasses-02",
     name: "Round Tinted Sunglasses",
-    brand: "NOVA Women",
+    brand: "Drapesly Women",
     department: "women",
     category: "sunglasses",
     kind: "accessory",
@@ -747,7 +747,7 @@ const specs: Spec[] = [
   {
     id: "women-footwear-01",
     name: "Block Heel Sandals",
-    brand: "NOVA Women",
+    brand: "Drapesly Women",
     department: "women",
     category: "footwear",
     kind: "shoe",
@@ -764,7 +764,7 @@ const specs: Spec[] = [
   {
     id: "women-footwear-02",
     name: "Classic Ballet Flats",
-    brand: "NOVA Women",
+    brand: "Drapesly Women",
     department: "women",
     category: "footwear",
     kind: "shoe",
@@ -780,7 +780,7 @@ const specs: Spec[] = [
   {
     id: "women-activewear-01",
     name: "Seamless Sports Bra",
-    brand: "NOVA Women",
+    brand: "Drapesly Women",
     department: "women",
     category: "activewear",
     kind: "top",
@@ -797,7 +797,7 @@ const specs: Spec[] = [
   {
     id: "women-activewear-02",
     name: "High Waist Training Tights",
-    brand: "NOVA Women",
+    brand: "Drapesly Women",
     department: "women",
     category: "activewear",
     kind: "bottom",

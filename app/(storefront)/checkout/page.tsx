@@ -1,15 +1,47 @@
 "use client";
 
 import { useState } from "react";
+import Script from "next/script";
 import { CheckCircle2, Truck, Zap, Smartphone, CreditCard, Landmark, Banknote } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import Button from "@/components/ui/Button";
 import CartSummary from "@/components/cart/CartSummary";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
+import { siteConfig } from "@/config/site";
 
 type DeliveryOption = "standard" | "express";
 type PaymentOption = "upi" | "card" | "netbanking" | "cod";
+
+interface RazorpaySuccessResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description?: string;
+  order_id: string;
+  prefill?: { name?: string; email?: string; contact?: string; method?: string };
+  theme?: { color?: string };
+  handler: (response: RazorpaySuccessResponse) => void;
+  modal?: { ondismiss?: () => void };
+}
+
+interface RazorpayInstance {
+  open: () => void;
+  on: (event: "payment.failed", handler: () => void) => void;
+}
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: RazorpayOptions) => RazorpayInstance;
+  }
+}
 
 const deliveryOptions: { value: DeliveryOption; label: string; desc: string; icon: typeof Truck }[] = [
   { value: "standard", label: "Standard Delivery", desc: "3–7 business days · Free", icon: Truck },
@@ -79,54 +111,155 @@ export default function CheckoutPage() {
     const formData = new FormData(e.currentTarget);
     const get = (name: string) => String(formData.get(name) ?? "").trim();
 
-    const payload = {
-      customerName: get("fullName"),
-      customerEmail: get("email"),
-      customerPhone: get("phone"),
-      shippingAddress: {
-        fullName: get("fullName"),
-        phone: get("shippingPhone"),
-        address: get("address"),
-        apartment: get("apartment") || undefined,
-        city: get("city"),
-        state: get("state"),
-        pinCode: get("pinCode"),
-      },
-      deliveryMethod: delivery,
-      paymentMethod: payment,
-      subtotal,
-      discount: 0,
-      shipping,
-      total: subtotal + shipping,
-      items: items.map((item) => ({
-        productId: item.productId,
-        productName: item.name,
-        brand: item.brand,
-        image: item.image,
-        price: item.price,
-        color: item.color,
-        size: item.size,
-        quantity: item.quantity,
-      })),
+    const customerName = get("fullName");
+    const customerEmail = get("email");
+    const customerPhone = get("phone");
+    const shippingAddress = {
+      fullName: customerName,
+      phone: get("shippingPhone"),
+      address: get("address"),
+      apartment: get("apartment") || undefined,
+      city: get("city"),
+      state: get("state"),
+      pinCode: get("pinCode"),
     };
 
+    if (payment === "cod") {
+      try {
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customerName,
+            customerEmail,
+            customerPhone,
+            shippingAddress,
+            deliveryMethod: delivery,
+            subtotal,
+            discount: 0,
+            shipping,
+            total: subtotal + shipping,
+            items: items.map((item) => ({
+              productId: item.productId,
+              productName: item.name,
+              brand: item.brand,
+              image: item.image,
+              price: item.price,
+              color: item.color,
+              size: item.size,
+              quantity: item.quantity,
+            })),
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error ?? "Could not place order. Please try again.");
+          setSubmitting(false);
+          return;
+        }
+        setOrderNumber(data.orderNumber ?? null);
+        clearCart();
+        setPlaced(true);
+      } catch {
+        setError("Could not reach the server. Please check your connection and try again.");
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    // Card / UPI / Net Banking — go through Razorpay Checkout
     try {
-      const res = await fetch("/api/orders", {
+      const createRes = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          items: items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            color: item.color,
+            size: item.size,
+          })),
+          deliveryMethod: delivery,
+        }),
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error ?? "Could not place order. Please try again.");
+      const createData = await createRes.json();
+      if (!createRes.ok) {
+        setError(createData.error ?? "Could not start payment. Please try again.");
         setSubmitting(false);
         return;
       }
 
-      setOrderNumber(data.orderNumber ?? null);
-      clearCart();
-      setPlaced(true);
+      if (!window.Razorpay) {
+        setError("Payment gateway failed to load. Please refresh and try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      const rzp = new window.Razorpay({
+        key: createData.keyId,
+        amount: createData.amount,
+        currency: createData.currency,
+        name: siteConfig.name,
+        description: "Order payment",
+        order_id: createData.razorpayOrderId,
+        prefill: {
+          name: customerName,
+          email: customerEmail,
+          contact: customerPhone,
+          method: payment,
+        },
+        theme: { color: "#ff5722" },
+        handler: async (response) => {
+          try {
+            const verifyRes = await fetch("/api/payments/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                order: {
+                  customerName,
+                  customerEmail,
+                  customerPhone,
+                  shippingAddress,
+                  deliveryMethod: delivery,
+                  paymentMethod: payment,
+                  subtotal: createData.subtotal,
+                  discount: 0,
+                  shipping: createData.shipping,
+                  total: createData.total,
+                  items: createData.items,
+                },
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok) {
+              setError(verifyData.error ?? "Payment verification failed.");
+              setSubmitting(false);
+              return;
+            }
+            setOrderNumber(verifyData.orderNumber ?? null);
+            clearCart();
+            setPlaced(true);
+          } catch {
+            setError(
+              "Payment succeeded but we couldn't confirm your order. Please contact support."
+            );
+            setSubmitting(false);
+          }
+        },
+        modal: {
+          ondismiss: () => setSubmitting(false),
+        },
+      });
+
+      rzp.on("payment.failed", () => {
+        setError("Payment failed. Please try again or choose a different payment method.");
+        setSubmitting(false);
+      });
+
+      rzp.open();
     } catch {
       setError("Could not reach the server. Please check your connection and try again.");
       setSubmitting(false);
@@ -165,6 +298,8 @@ export default function CheckoutPage() {
 
   return (
     <div className="container-nova py-6 lg:py-10">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
+
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Cart", href: "/cart" }, { label: "Checkout" }]} />
       <h1 className="mt-3 text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">
         Checkout
@@ -241,7 +376,9 @@ export default function CheckoutPage() {
               })}
             </div>
             <p className="text-xs text-neutral-400">
-              Payment gateway integration will be connected in a future update. No charges will be made.
+              {payment === "cod"
+                ? "Pay with cash when your order is delivered."
+                : "You'll be redirected to a secure Razorpay checkout to complete payment. This store is currently running in test mode — no real charge will be made."}
             </p>
           </FormSection>
         </div>
@@ -265,7 +402,7 @@ export default function CheckoutPage() {
           <CartSummary subtotal={subtotal} shipping={shipping} />
           {error && <p className="text-sm text-red-600">{error}</p>}
           <Button type="submit" variant="primary" size="lg" className="w-full" disabled={submitting}>
-            {submitting ? "Placing Order..." : "Place Order"}
+            {submitting ? "Processing..." : payment === "cod" ? "Place Order" : "Pay Now"}
           </Button>
         </div>
       </form>

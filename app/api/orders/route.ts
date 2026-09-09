@@ -43,6 +43,13 @@ function validate(body: unknown): body is CreateOrderInput {
   return true;
 }
 
+/**
+ * Cash-on-Delivery orders only. Any paid method (card/UPI/net banking) must
+ * go through /api/payments/verify, which only creates the order after a
+ * signature-verified Razorpay payment — so paymentMethod/paymentStatus are
+ * forced here rather than trusted from the client, to stop a request from
+ * claiming a card payment succeeded without actually paying.
+ */
 export async function POST(request: NextRequest) {
   let body: unknown;
   try {
@@ -56,7 +63,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const order = await createOrder(body);
+    const order = await createOrder({ ...body, paymentMethod: "cod", paymentStatus: "cod" });
     return NextResponse.json({ orderNumber: order.orderNumber });
   } catch (err) {
     console.error("Failed to create order:", err);
