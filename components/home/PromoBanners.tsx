@@ -28,7 +28,7 @@ export default function PromoBanners() {
           </div>
           <div className="relative mt-6 flex flex-wrap items-end justify-between gap-4">
             <CountdownTimer endsAt={flashSale.endsAt} />
-            <Button href={flashSale.cta.href} variant="primary" size="md" className="bg-white text-neutral-900 hover:bg-neutral-100">
+            <Button href={flashSale.cta.href} variant="white" size="md">
               {flashSale.cta.label}
             </Button>
           </div>
@@ -52,7 +52,7 @@ export default function PromoBanners() {
             </h3>
           </div>
           <div className="relative mt-6">
-            <Button href={newCollection.cta.href} variant="outline" size="md" className="border-white text-white hover:bg-white hover:text-neutral-900">
+            <Button href={newCollection.cta.href} variant="outline-inverted" size="md">
               {newCollection.cta.label}
             </Button>
           </div>

@@ -3,14 +3,16 @@ import type { ButtonHTMLAttributes, AnchorHTMLAttributes } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type Variant = "primary" | "secondary" | "outline" | "ghost";
+type Variant = "primary" | "secondary" | "outline" | "outline-inverted" | "ghost" | "white";
 type Size = "sm" | "md" | "lg";
 
 const variantClasses: Record<Variant, string> = {
   primary: "bg-neutral-900 text-white hover:bg-neutral-800",
   secondary: "bg-accent text-white hover:bg-accent-dark",
   outline: "border border-neutral-300 text-neutral-900 hover:border-neutral-900",
+  "outline-inverted": "border border-white text-white hover:bg-white hover:text-neutral-900",
   ghost: "text-neutral-900 hover:bg-neutral-100",
+  white: "bg-white text-neutral-900 hover:bg-neutral-100",
 };
 
 const sizeClasses: Record<Size, string> = {
