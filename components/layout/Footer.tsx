@@ -45,7 +45,7 @@ function FooterColumn({
       </h3>
       <ul className="flex flex-col gap-2.5">
         {links.map((link) => (
-          <li key={link.href}>
+          <li key={`${link.label}-${link.href}`}>
             <Link href={link.href} className="text-sm text-neutral-300 hover:text-white">
               {link.label}
             </Link>
@@ -121,7 +121,7 @@ export default function Footer() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
             {footerLinks.legal.map((link) => (
-              <Link key={link.href} href={link.href} className="hover:text-neutral-300">
+              <Link key={`${link.label}-${link.href}`} href={link.href} className="hover:text-neutral-300">
                 {link.label}
               </Link>
             ))}

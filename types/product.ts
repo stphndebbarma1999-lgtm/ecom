@@ -29,3 +29,27 @@ export interface Product {
   isBestSeller: boolean;
   tags: string[];
 }
+
+/** Fields the admin panel can create/edit. `id`, `slug` and `discountPercentage` are derived/generated. */
+export interface ProductInput {
+  slug?: string;
+  name: string;
+  brand: string;
+  department: Department;
+  category: string;
+  subcategory?: string;
+  description: string;
+  details: string[];
+  materialAndCare: string[];
+  price: number;
+  originalPrice?: number;
+  rating: number;
+  reviewCount: number;
+  images: string[];
+  colors: ProductColor[];
+  sizes: string[];
+  stock: number;
+  isNew: boolean;
+  isBestSeller: boolean;
+  tags: string[];
+}

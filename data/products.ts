@@ -1,4 +1,4 @@
-import type { Product, ProductColor } from "@/types/product";
+import type { Product, ProductColor } from "../types/product";
 
 type Kind = "top" | "bottom" | "shoe" | "accessory" | "beauty";
 

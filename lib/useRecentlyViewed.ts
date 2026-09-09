@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { products as allProducts } from "@/data/products";
 import type { Product } from "@/types/product";
 
 const STORAGE_KEY = "nova.recentlyViewed";
@@ -22,18 +21,36 @@ export function useRecentlyViewed(excludeId?: string): Product[] {
   const [items, setItems] = useState<Product[]>([]);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      const ids: string[] = raw ? JSON.parse(raw) : [];
-      const found = ids
-        .filter((id) => id !== excludeId)
-        .map((id) => allProducts.find((p) => p.id === id))
-        .filter((p): p is Product => Boolean(p));
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration from localStorage after mount, required to avoid SSR/CSR mismatch
-      setItems(found);
-    } catch {
-      setItems([]);
+    let cancelled = false;
+
+    async function load() {
+      let ids: string[] = [];
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        ids = raw ? JSON.parse(raw) : [];
+      } catch {
+        ids = [];
+      }
+
+      const filtered = ids.filter((id) => id !== excludeId);
+      if (filtered.length === 0) {
+        if (!cancelled) setItems([]);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/products/by-ids?ids=${filtered.join(",")}`);
+        const data = await res.json();
+        if (!cancelled) setItems(data.products ?? []);
+      } catch {
+        if (!cancelled) setItems([]);
+      }
     }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
   }, [excludeId]);
 
   return items;

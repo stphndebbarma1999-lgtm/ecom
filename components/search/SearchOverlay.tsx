@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
-import { searchProducts } from "@/data/products";
+import type { Product } from "@/types/product";
 import { useSearchOverlay } from "@/context/SearchContext";
 import { useRecentSearches } from "@/lib/useRecentSearches";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
@@ -47,7 +47,30 @@ export default function SearchOverlay() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [isOpen, handleClose]);
 
-  const results = useMemo(() => searchProducts(query).slice(0, 8), [query]);
+  const [fetchedResults, setFetchedResults] = useState<Product[]>([]);
+  const trimmedQuery = query.trim();
+  const results = trimmedQuery ? fetchedResults : [];
+
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    const controller = new AbortController();
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, {
+          signal: controller.signal,
+        });
+        const data = await res.json();
+        setFetchedResults(data.results ?? []);
+      } catch {
+        // ignore aborted/failed requests — a newer keystroke superseded this one
+      }
+    }, 250);
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [query]);
 
   if (!isOpen) return null;
 

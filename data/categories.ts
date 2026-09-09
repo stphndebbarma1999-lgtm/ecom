@@ -1,4 +1,4 @@
-import type { Category, DepartmentInfo } from "@/types/category";
+import type { Category, DepartmentInfo } from "../types/category";
 
 export const menCategories: Category[] = [
   { name: "T-Shirts", slug: "t-shirts", department: "men", image: "" },

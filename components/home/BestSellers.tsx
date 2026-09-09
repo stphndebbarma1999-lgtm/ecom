@@ -1,9 +1,9 @@
-import { getBestSellers } from "@/data/products";
+import { getBestSellers } from "@/lib/db/products";
 import SectionHeader from "@/components/ui/SectionHeader";
 import BestSellerCard from "@/components/product/BestSellerCard";
 
-export default function BestSellers() {
-  const products = getBestSellers(6);
+export default async function BestSellers() {
+  const products = await getBestSellers(6);
 
   return (
     <section className="border-b border-neutral-100 py-10 lg:py-14">

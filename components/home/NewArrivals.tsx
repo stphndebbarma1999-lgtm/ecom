@@ -1,9 +1,9 @@
-import { getNewArrivals } from "@/data/products";
+import { getNewArrivals } from "@/lib/db/products";
 import SectionHeader from "@/components/ui/SectionHeader";
 import ProductCard from "@/components/product/ProductCard";
 
-export default function NewArrivals() {
-  const products = getNewArrivals(12);
+export default async function NewArrivals() {
+  const products = await getNewArrivals(12);
 
   return (
     <section className="border-b border-neutral-100 py-10 lg:py-14">
