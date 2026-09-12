@@ -1,46 +1,50 @@
 "use client";
 
-import { useState } from "react";
-import Script from "next/script";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Truck, Zap, Smartphone, CreditCard, Landmark, Banknote } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import Button from "@/components/ui/Button";
 import CartSummary from "@/components/cart/CartSummary";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
-import { siteConfig } from "@/config/site";
 
 type DeliveryOption = "standard" | "express";
 type PaymentOption = "upi" | "card" | "netbanking" | "cod";
 
-interface RazorpaySuccessResponse {
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
-}
-
-interface RazorpayOptions {
-  key: string;
-  amount: number;
-  currency: string;
-  name: string;
-  description?: string;
-  order_id: string;
-  prefill?: { name?: string; email?: string; contact?: string; method?: string };
-  theme?: { color?: string };
-  handler: (response: RazorpaySuccessResponse) => void;
-  modal?: { ondismiss?: () => void };
-}
-
-interface RazorpayInstance {
-  open: () => void;
-  on: (event: "payment.failed", handler: () => void) => void;
+interface PaytmCheckoutConfig {
+  root?: string;
+  flow?: string;
+  data: { orderId: string; token: string; tokenType: string; amount: string };
+  handler: {
+    notifyMerchant: (eventName: string, data: unknown) => void;
+  };
 }
 
 declare global {
   interface Window {
-    Razorpay?: new (options: RazorpayOptions) => RazorpayInstance;
+    Paytm?: {
+      CheckoutJS?: {
+        init: (config: PaytmCheckoutConfig) => Promise<void>;
+        invoke: () => void;
+      };
+    };
   }
+}
+
+function loadScript(src: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.crossOrigin = "anonymous";
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Failed to load payment script."));
+    document.body.appendChild(script);
+  });
 }
 
 const deliveryOptions: { value: DeliveryOption; label: string; desc: string; icon: typeof Truck }[] = [
@@ -92,8 +96,9 @@ function Field({
   );
 }
 
-export default function CheckoutPage() {
+function CheckoutForm() {
   const { items, subtotal, clearCart } = useCart();
+  const searchParams = useSearchParams();
   const [delivery, setDelivery] = useState<DeliveryOption>("standard");
   const [payment, setPayment] = useState<PaymentOption>("upi");
   const [placed, setPlaced] = useState(false);
@@ -102,6 +107,28 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
 
   const shipping = delivery === "express" ? 149 : subtotal >= 999 || subtotal === 0 ? 0 : 99;
+
+  // Handles the redirect-based fallback: Paytm's server callback (used by
+  // payment methods that leave the page, e.g. net banking) redirects back
+  // here with the outcome once it has finalized the order server-side.
+  useEffect(() => {
+    const paymentParam = searchParams.get("payment");
+    const orderParam = searchParams.get("order");
+
+    if (paymentParam === "success" && orderParam) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of the redirect's query params to set initial view state, not an ongoing sync
+      setOrderNumber(orderParam);
+      clearCart();
+      setPlaced(true);
+    } else if (paymentParam === "failed") {
+      setError("Payment failed. Please try again or choose a different payment method.");
+    } else if (paymentParam === "error") {
+      setError(
+        "We couldn't confirm your payment. If you were charged, please contact support before retrying."
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only meant to run once, off the initial query params from a payment redirect
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -167,7 +194,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Card / UPI / Net Banking — go through Razorpay Checkout
+    // Card / UPI / Net Banking — go through Paytm CheckoutJS
     try {
       const createRes = await fetch("/api/payments/create-order", {
         method: "POST",
@@ -180,6 +207,11 @@ export default function CheckoutPage() {
             size: item.size,
           })),
           deliveryMethod: delivery,
+          paymentMethod: payment,
+          customerName,
+          customerEmail,
+          customerPhone,
+          shippingAddress,
         }),
       });
       const createData = await createRes.json();
@@ -189,77 +221,62 @@ export default function CheckoutPage() {
         return;
       }
 
-      if (!window.Razorpay) {
+      await loadScript(createData.checkoutJsUrl);
+
+      if (!window.Paytm?.CheckoutJS) {
         setError("Payment gateway failed to load. Please refresh and try again.");
         setSubmitting(false);
         return;
       }
 
-      const rzp = new window.Razorpay({
-        key: createData.keyId,
-        amount: createData.amount,
-        currency: createData.currency,
-        name: siteConfig.name,
-        description: "Order payment",
-        order_id: createData.razorpayOrderId,
-        prefill: {
-          name: customerName,
-          email: customerEmail,
-          contact: customerPhone,
-          method: payment,
-        },
-        theme: { color: "#ff5722" },
-        handler: async (response) => {
-          try {
-            const verifyRes = await fetch("/api/payments/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                order: {
-                  customerName,
-                  customerEmail,
-                  customerPhone,
-                  shippingAddress,
-                  deliveryMethod: delivery,
-                  paymentMethod: payment,
-                  subtotal: createData.subtotal,
-                  discount: 0,
-                  shipping: createData.shipping,
-                  total: createData.total,
-                  items: createData.items,
-                },
-              }),
-            });
-            const verifyData = await verifyRes.json();
-            if (!verifyRes.ok) {
-              setError(verifyData.error ?? "Payment verification failed.");
-              setSubmitting(false);
-              return;
-            }
-            setOrderNumber(verifyData.orderNumber ?? null);
-            clearCart();
-            setPlaced(true);
-          } catch {
-            setError(
-              "Payment succeeded but we couldn't confirm your order. Please contact support."
-            );
+      const paytmOrderId = createData.paytmOrderId as string;
+
+      const confirmPayment = async () => {
+        try {
+          const verifyRes = await fetch("/api/payments/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paytmOrderId }),
+          });
+          const verifyData = await verifyRes.json();
+          if (!verifyRes.ok) {
+            setError(verifyData.error ?? "Payment could not be confirmed.");
             setSubmitting(false);
+            return;
           }
+          setOrderNumber(verifyData.orderNumber ?? null);
+          clearCart();
+          setPlaced(true);
+        } catch {
+          setError(
+            "Payment may have succeeded but we couldn't confirm it. Please check your email or contact support."
+          );
+          setSubmitting(false);
+        }
+      };
+
+      await window.Paytm.CheckoutJS.init({
+        root: "",
+        flow: "DEFAULT",
+        data: {
+          orderId: paytmOrderId,
+          token: createData.txnToken,
+          tokenType: "TXN_TOKEN",
+          amount: createData.amount,
         },
-        modal: {
-          ondismiss: () => setSubmitting(false),
+        handler: {
+          // Fires on lightbox lifecycle events. The event itself isn't
+          // trusted as proof of payment — it's just the cue to ask our own
+          // server (which checks Paytm's Transaction Status API directly)
+          // what actually happened.
+          notifyMerchant: (eventName) => {
+            if (eventName === "APP_CLOSED") {
+              confirmPayment();
+            }
+          },
         },
       });
-
-      rzp.on("payment.failed", () => {
-        setError("Payment failed. Please try again or choose a different payment method.");
-        setSubmitting(false);
-      });
-
-      rzp.open();
+      window.Paytm.CheckoutJS.invoke();
     } catch {
       setError("Could not reach the server. Please check your connection and try again.");
       setSubmitting(false);
@@ -298,8 +315,6 @@ export default function CheckoutPage() {
 
   return (
     <div className="container-nova py-6 lg:py-10">
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
-
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Cart", href: "/cart" }, { label: "Checkout" }]} />
       <h1 className="mt-3 text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">
         Checkout
@@ -378,7 +393,7 @@ export default function CheckoutPage() {
             <p className="text-xs text-neutral-400">
               {payment === "cod"
                 ? "Pay with cash when your order is delivered."
-                : "You'll be redirected to a secure Razorpay checkout to complete payment. This store is currently running in test mode — no real charge will be made."}
+                : "You'll be redirected to a secure Paytm checkout to complete payment. This store is currently running in test mode — no real charge will be made."}
             </p>
           </FormSection>
         </div>
@@ -407,5 +422,13 @@ export default function CheckoutPage() {
         </div>
       </form>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={null}>
+      <CheckoutForm />
+    </Suspense>
   );
 }

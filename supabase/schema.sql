@@ -56,8 +56,8 @@ create table if not exists orders (
   delivery_method text not null default 'standard' check (delivery_method in ('standard', 'express')),
   payment_method text not null default 'cod' check (payment_method in ('upi', 'card', 'netbanking', 'cod')),
   payment_status text not null default 'pending' check (payment_status in ('pending', 'paid', 'failed', 'cod')),
-  razorpay_order_id text,
-  razorpay_payment_id text,
+  paytm_order_id text unique,
+  paytm_txn_id text,
   status text not null default 'Processing' check (status in ('Processing', 'Shipped', 'Delivered', 'Cancelled')),
   subtotal numeric(10, 2) not null,
   discount numeric(10, 2) not null default 0,
@@ -82,6 +82,19 @@ create table if not exists order_items (
 
 create index if not exists order_items_order_id_idx on order_items (order_id);
 
+-- Holds the customer/shipping/items details for a checkout in progress,
+-- keyed by the Paytm order id. Paytm's payment callback only ever reports
+-- back payment fields (order id, txn id, status) — never the original
+-- order contents — so this is what lets either the client-driven status
+-- check or Paytm's own server callback finish creating the real order.
+-- Rows are deleted once the order is finalized; a stray abandoned-checkout
+-- row otherwise carries no payment info and is harmless.
+create table if not exists pending_orders (
+  paytm_order_id text primary key,
+  payload jsonb not null,
+  created_at timestamptz not null default now()
+);
+
 -- Every table is accessed exclusively through server-side code using the
 -- service_role key, so Row Level Security stays enabled with no policies:
 -- this blocks all access via the public anon key by default (defense in depth).
@@ -89,3 +102,4 @@ alter table categories enable row level security;
 alter table products enable row level security;
 alter table orders enable row level security;
 alter table order_items enable row level security;
+alter table pending_orders enable row level security;

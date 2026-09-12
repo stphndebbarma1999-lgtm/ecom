@@ -46,7 +46,7 @@ function validate(body: unknown): body is CreateOrderInput {
 /**
  * Cash-on-Delivery orders only. Any paid method (card/UPI/net banking) must
  * go through /api/payments/verify, which only creates the order after a
- * signature-verified Razorpay payment — so paymentMethod/paymentStatus are
+ * status-confirmed Paytm payment — so paymentMethod/paymentStatus are
  * forced here rather than trusted from the client, to stop a request from
  * claiming a card payment succeeded without actually paying.
  */

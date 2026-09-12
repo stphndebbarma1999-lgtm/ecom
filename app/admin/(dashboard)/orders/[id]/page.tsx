@@ -87,9 +87,9 @@ export default async function AdminOrderDetailPage({
           >
             {order.paymentStatus}
           </span>
-          {order.razorpayPaymentId && (
-            <p className="mt-2 truncate text-xs text-neutral-400" title={order.razorpayPaymentId}>
-              {order.razorpayPaymentId}
+          {order.paytmTxnId && (
+            <p className="mt-2 truncate text-xs text-neutral-400" title={order.paytmTxnId}>
+              {order.paytmTxnId}
             </p>
           )}
         </div>

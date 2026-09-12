@@ -13,8 +13,8 @@ interface OrderRow {
   delivery_method: Order["deliveryMethod"];
   payment_method: Order["paymentMethod"];
   payment_status: Order["paymentStatus"];
-  razorpay_order_id: string | null;
-  razorpay_payment_id: string | null;
+  paytm_order_id: string | null;
+  paytm_txn_id: string | null;
   status: OrderStatus;
   subtotal: number;
   discount: number;
@@ -61,8 +61,8 @@ function mapOrderRow(row: OrderRow, items: OrderItemRow[]): Order {
     deliveryMethod: row.delivery_method,
     paymentMethod: row.payment_method,
     paymentStatus: row.payment_status,
-    razorpayOrderId: row.razorpay_order_id ?? undefined,
-    razorpayPaymentId: row.razorpay_payment_id ?? undefined,
+    paytmOrderId: row.paytm_order_id ?? undefined,
+    paytmTxnId: row.paytm_txn_id ?? undefined,
     status: row.status,
     subtotal: Number(row.subtotal),
     discount: Number(row.discount),
@@ -94,8 +94,8 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
       delivery_method: input.deliveryMethod,
       payment_method: input.paymentMethod,
       payment_status: input.paymentStatus,
-      razorpay_order_id: input.razorpayOrderId || null,
-      razorpay_payment_id: input.razorpayPaymentId || null,
+      paytm_order_id: input.paytmOrderId || null,
+      paytm_txn_id: input.paytmTxnId || null,
       subtotal: input.subtotal,
       discount: input.discount,
       shipping: input.shipping,
@@ -131,6 +131,35 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
   }
 
   return mapOrderRow(order, (itemRows as unknown as OrderItemRow[]) ?? []);
+}
+
+/**
+ * Both the client-driven status check and Paytm's server callback can end
+ * up trying to finalize the same payment — this lets either path check
+ * first so a successful payment never creates two order rows.
+ */
+export async function getOrderByPaytmOrderId(paytmOrderId: string): Promise<Order | null> {
+  const supabase = getSupabaseAdmin();
+  const { data: orderRow, error } = await supabase
+    .from("orders")
+    .select()
+    .eq("paytm_order_id", paytmOrderId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!orderRow) return null;
+
+  const { data: itemRows, error: itemsError } = await supabase
+    .from("order_items")
+    .select()
+    .eq("order_id", (orderRow as unknown as OrderRow).id);
+
+  if (itemsError) throw itemsError;
+
+  return mapOrderRow(
+    orderRow as unknown as OrderRow,
+    (itemRows as unknown as OrderItemRow[]) ?? []
+  );
 }
 
 export async function listOrders(): Promise<Order[]> {

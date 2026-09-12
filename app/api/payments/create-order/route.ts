@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getRazorpay } from "@/lib/razorpay";
+import { initiateTransaction, getPaytmClientConfig } from "@/lib/paytm";
 import { getProductById } from "@/lib/db/products";
-import type { DeliveryMethod } from "@/types/order";
+import { createPendingOrder } from "@/lib/db/pendingOrders";
+import type { DeliveryMethod, OrderShippingAddress, PaymentMethod } from "@/types/order";
 
 interface RequestItem {
   productId: string;
@@ -10,13 +11,29 @@ interface RequestItem {
   size?: string;
 }
 
+interface RequestBody {
+  items?: RequestItem[];
+  deliveryMethod?: DeliveryMethod;
+  paymentMethod?: PaymentMethod;
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  shippingAddress?: OrderShippingAddress;
+}
+
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 /**
  * Computes the charge amount server-side from current product prices rather
  * than trusting a client-supplied total — the only way to stop a tampered
- * request from paying less than the real price.
+ * request from paying less than the real price. The full order payload is
+ * stashed (keyed by the Paytm order id we generate) so it can be recovered
+ * once payment is confirmed — Paytm's callback never carries it back to us.
  */
 export async function POST(request: NextRequest) {
-  let body: { items?: RequestItem[]; deliveryMethod?: DeliveryMethod };
+  let body: RequestBody;
   try {
     body = await request.json();
   } catch {
@@ -27,8 +44,24 @@ export async function POST(request: NextRequest) {
   if (items.length === 0) {
     return NextResponse.json({ error: "Cart is empty." }, { status: 400 });
   }
+  if (!isNonEmptyString(body.customerName) || !isNonEmptyString(body.customerEmail)) {
+    return NextResponse.json({ error: "Name and email are required." }, { status: 400 });
+  }
+  const addr = body.shippingAddress;
+  if (
+    !addr ||
+    !isNonEmptyString(addr.fullName) ||
+    !isNonEmptyString(addr.phone) ||
+    !isNonEmptyString(addr.address) ||
+    !isNonEmptyString(addr.city) ||
+    !isNonEmptyString(addr.state) ||
+    !isNonEmptyString(addr.pinCode)
+  ) {
+    return NextResponse.json({ error: "A complete shipping address is required." }, { status: 400 });
+  }
 
   const deliveryMethod: DeliveryMethod = body.deliveryMethod === "express" ? "express" : "standard";
+  const paymentMethod: PaymentMethod = body.paymentMethod ?? "card";
 
   const resolvedItems = [];
   let subtotal = 0;
@@ -59,25 +92,37 @@ export async function POST(request: NextRequest) {
   const total = subtotal + shipping;
 
   try {
-    const razorpay = getRazorpay();
-    const order = await razorpay.orders.create({
-      amount: Math.round(total * 100),
-      currency: "INR",
-      receipt: `nova_${Date.now()}`,
+    const { paytmOrderId, txnToken, amount } = await initiateTransaction({
+      amount: total,
+      customerEmail: body.customerEmail,
+      customerPhone: body.customerPhone,
     });
 
-    return NextResponse.json({
-      razorpayOrderId: order.id,
-      keyId: process.env.RAZORPAY_KEY_ID,
-      amount: order.amount,
-      currency: order.currency,
+    await createPendingOrder(paytmOrderId, {
+      customerName: body.customerName,
+      customerEmail: body.customerEmail,
+      customerPhone: body.customerPhone,
+      shippingAddress: addr,
+      deliveryMethod,
+      paymentMethod,
       subtotal,
+      discount: 0,
       shipping,
       total,
       items: resolvedItems,
     });
+
+    const { mid, checkoutJsUrl } = getPaytmClientConfig();
+
+    return NextResponse.json({
+      paytmOrderId,
+      txnToken,
+      amount,
+      mid,
+      checkoutJsUrl,
+    });
   } catch (err) {
-    console.error("Failed to create Razorpay order:", err);
+    console.error("Failed to initiate Paytm transaction:", err);
     return NextResponse.json({ error: "Could not start payment. Please try again." }, { status: 500 });
   }
 }
