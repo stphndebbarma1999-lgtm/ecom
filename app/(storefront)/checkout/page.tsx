@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Truck, Zap, Smartphone, CreditCard, Landmark, Banknote } from "lucide-react";
+import { CheckCircle2, Truck, Zap, Smartphone, CreditCard, Landmark } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import Button from "@/components/ui/Button";
 import CartSummary from "@/components/cart/CartSummary";
@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 
 type DeliveryOption = "standard" | "express";
-type PaymentOption = "upi" | "card" | "netbanking" | "cod";
+type PaymentOption = "upi" | "card" | "netbanking";
 
 interface PaytmCheckoutConfig {
   root?: string;
@@ -73,7 +73,6 @@ const paymentOptions: { value: PaymentOption; label: string; icon: typeof Smartp
   { value: "upi", label: "UPI", icon: Smartphone },
   { value: "card", label: "Debit / Credit Card", icon: CreditCard },
   { value: "netbanking", label: "Net Banking", icon: Landmark },
-  { value: "cod", label: "Cash on Delivery", icon: Banknote },
 ];
 
 function FormSection({
@@ -123,7 +122,7 @@ function CheckoutForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const shipping = delivery === "express" ? 149 : subtotal >= 999 || subtotal === 0 ? 0 : 99;
+  const shipping = delivery === "express" ? 149 : subtotal >= 999 || subtotal === 0 ? 0 : 59;
 
   // Handles the redirect-based fallback: Paytm's server callback (used by
   // payment methods that leave the page, e.g. net banking) redirects back
@@ -157,7 +156,6 @@ function CheckoutForm() {
 
     const customerName = get("fullName");
     const customerEmail = get("email");
-    const customerPhone = get("phone");
     const shippingAddress = {
       fullName: customerName,
       phone: get("shippingPhone"),
@@ -168,50 +166,6 @@ function CheckoutForm() {
       pinCode: get("pinCode"),
     };
 
-    if (payment === "cod") {
-      try {
-        const res = await fetch("/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            customerName,
-            customerEmail,
-            customerPhone,
-            shippingAddress,
-            deliveryMethod: delivery,
-            subtotal,
-            discount: 0,
-            shipping,
-            total: subtotal + shipping,
-            items: items.map((item) => ({
-              productId: item.productId,
-              productName: item.name,
-              brand: item.brand,
-              image: item.image,
-              price: item.price,
-              color: item.color,
-              size: item.size,
-              quantity: item.quantity,
-            })),
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          setError(data.error ?? "Could not place order. Please try again.");
-          setSubmitting(false);
-          return;
-        }
-        setOrderNumber(data.orderNumber ?? null);
-        clearCart();
-        setPlaced(true);
-      } catch {
-        setError("Could not reach the server. Please check your connection and try again.");
-        setSubmitting(false);
-      }
-      return;
-    }
-
-    // Card / UPI / Net Banking — go through Paytm CheckoutJS
     try {
       const createRes = await fetch("/api/payments/create-order", {
         method: "POST",
@@ -227,7 +181,7 @@ function CheckoutForm() {
           paymentMethod: payment,
           customerName,
           customerEmail,
-          customerPhone,
+          customerPhone: shippingAddress.phone,
           shippingAddress,
         }),
       });
@@ -341,10 +295,7 @@ function CheckoutForm() {
       <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-3">
         <div className="flex flex-col gap-5 lg:col-span-2">
           <FormSection step={1} title="Contact Information">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Field label="Email" type="email" name="email" required placeholder="you@example.com" />
-              <Field label="Phone" type="tel" name="phone" required placeholder="+91 98765 43210" />
-            </div>
+            <Field label="Email" type="email" name="email" required placeholder="you@example.com" />
           </FormSection>
 
           <FormSection step={2} title="Shipping Address">
@@ -409,9 +360,8 @@ function CheckoutForm() {
               })}
             </div>
             <p className="text-xs text-neutral-400">
-              {payment === "cod"
-                ? "Pay with cash when your order is delivered."
-                : "You'll be redirected to a secure Paytm checkout to complete payment. This store is currently running in test mode — no real charge will be made."}
+              You&apos;ll be redirected to a secure Paytm checkout to complete payment. This store
+              is currently running in test mode — no real charge will be made.
             </p>
           </FormSection>
         </div>
@@ -435,7 +385,7 @@ function CheckoutForm() {
           <CartSummary subtotal={subtotal} shipping={shipping} />
           {error && <p className="text-sm text-red-600">{error}</p>}
           <Button type="submit" variant="primary" size="lg" className="w-full" disabled={submitting}>
-            {submitting ? "Processing..." : payment === "cod" ? "Place Order" : "Pay Now"}
+            {submitting ? "Processing..." : "Pay Now"}
           </Button>
         </div>
       </form>

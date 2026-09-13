@@ -25,6 +25,11 @@ const COLOR_LIBRARY: Record<string, ProductColor> = {
   mustard: { name: "Mustard", hex: "#E1AD01" },
   emerald: { name: "Emerald", hex: "#0B6E4F" },
   wine: { name: "Wine", hex: "#722F37" },
+  natural: { name: "Natural", hex: "#F0EAD6" },
+  clearGlass: { name: "Clear", hex: "#F5F5F5" },
+  shadeFair: { name: "Fair", hex: "#F5D5B8" },
+  shadeMedium: { name: "Medium", hex: "#C68958" },
+  shadeDeep: { name: "Deep", hex: "#8D5524" },
 };
 
 function colors(...keys: (keyof typeof COLOR_LIBRARY)[]): ProductColor[] {
@@ -823,7 +828,7 @@ const specs: Spec[] = [
     originalPrice: 999,
     rating: 4.6,
     reviewCount: 342,
-    colorKeys: [],
+    colorKeys: ["natural"],
     isBestSeller: true,
     description:
       "A 20% vitamin C serum that brightens dull skin, fades dark spots and boosts radiance.",
@@ -839,7 +844,7 @@ const specs: Spec[] = [
     price: 649,
     rating: 4.4,
     reviewCount: 198,
-    colorKeys: [],
+    colorKeys: ["natural"],
     description:
       "A lightweight, oil-free gel moisturizer with hyaluronic acid for 24-hour hydration.",
     tags: ["skincare", "moisturizer", "hydrating"],
@@ -856,7 +861,7 @@ const specs: Spec[] = [
     originalPrice: 749,
     rating: 4.3,
     reviewCount: 156,
-    colorKeys: [],
+    colorKeys: ["natural"],
     description:
       "Nourishing argan oil serum that tames frizz and adds shine without weighing hair down.",
     tags: ["haircare", "serum", "frizz-control"],
@@ -871,7 +876,7 @@ const specs: Spec[] = [
     price: 449,
     rating: 4.2,
     reviewCount: 121,
-    colorKeys: [],
+    colorKeys: ["natural"],
     isNew: true,
     description:
       "A sulfate-free keratin shampoo that repairs damage and strengthens hair from root to tip.",
@@ -905,7 +910,7 @@ const specs: Spec[] = [
     price: 899,
     rating: 4.3,
     reviewCount: 143,
-    colorKeys: [],
+    colorKeys: ["shadeFair", "shadeMedium", "shadeDeep"],
     description:
       "Buildable, full-coverage foundation with a natural matte finish that lasts all day.",
     tags: ["makeup", "foundation", "long-wear"],
@@ -922,7 +927,7 @@ const specs: Spec[] = [
     originalPrice: 1999,
     rating: 4.6,
     reviewCount: 89,
-    colorKeys: [],
+    colorKeys: ["clearGlass"],
     description:
       "A fresh citrus-floral eau de parfum with notes of bergamot, jasmine and soft musk.",
     tags: ["fragrance", "perfume", "citrus"],
@@ -937,7 +942,7 @@ const specs: Spec[] = [
     price: 1299,
     rating: 4.2,
     reviewCount: 47,
-    colorKeys: [],
+    colorKeys: ["clearGlass"],
     isNew: true,
     description:
       "A warm, woody musk fragrance with sandalwood and amber base notes for evening wear.",
@@ -988,7 +993,7 @@ const specs: Spec[] = [
     originalPrice: 1199,
     rating: 4.7,
     reviewCount: 276,
-    colorKeys: [],
+    colorKeys: ["natural"],
     isBestSeller: true,
     description:
       "A cult-favorite 96% snail mucin essence that repairs, hydrates and smooths skin texture.",
@@ -1004,7 +1009,7 @@ const specs: Spec[] = [
     price: 749,
     rating: 4.5,
     reviewCount: 164,
-    colorKeys: [],
+    colorKeys: ["natural"],
     isNew: true,
     description:
       "A soothing centella asiatica cream that calms redness and strengthens the skin barrier.",

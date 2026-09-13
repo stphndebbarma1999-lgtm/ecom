@@ -9,7 +9,7 @@ export default function CartSummary({
   discount?: number;
   shipping?: number;
 }) {
-  const computedShipping = shipping ?? (subtotal >= 999 || subtotal === 0 ? 0 : 99);
+  const computedShipping = shipping ?? (subtotal >= 999 || subtotal === 0 ? 0 : 59);
   const total = subtotal - discount + computedShipping;
 
   return (

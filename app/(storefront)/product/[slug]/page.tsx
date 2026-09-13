@@ -6,7 +6,6 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import ProductGallery from "@/components/product/ProductGallery";
 import ProductInfo from "@/components/product/ProductInfo";
 import ProductAccordion from "@/components/product/ProductAccordion";
-import ProductReviews from "@/components/product/ProductReviews";
 import RecentlyViewedTracker from "@/components/product/RecentlyViewedTracker";
 import RecentlyViewedSection from "@/components/product/RecentlyViewedSection";
 import SectionHeader from "@/components/ui/SectionHeader";
@@ -65,11 +64,6 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
 
       <div className="mt-4 lg:mt-10">
         <ProductAccordion product={product} />
-      </div>
-
-      <div className="border-b border-neutral-100">
-        <h2 className="pt-8 text-xl font-semibold tracking-tight text-neutral-900">Reviews</h2>
-        <ProductReviews product={product} />
       </div>
 
       {related.length > 0 && (

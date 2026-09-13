@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Mail, Phone, Clock } from "lucide-react";
+import { Mail, Clock } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import ContactForm from "@/components/ui/ContactForm";
 import { siteConfig } from "@/config/site";
@@ -32,13 +32,6 @@ export default function ContactPage() {
             <div>
               <p className="text-sm font-medium text-neutral-900">Email</p>
               <p className="text-sm text-neutral-500">{siteConfig.contact.email}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <Phone size={18} className="mt-0.5 shrink-0 text-neutral-700" />
-            <div>
-              <p className="text-sm font-medium text-neutral-900">Phone</p>
-              <p className="text-sm text-neutral-500">{siteConfig.contact.phone}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">

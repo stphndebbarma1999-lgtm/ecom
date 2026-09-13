@@ -14,7 +14,7 @@ export default function ShippingPolicyPage() {
         Shipping Policy
       </h1>
       <div className="mt-6 flex flex-col gap-4 text-sm leading-relaxed text-neutral-600">
-        <p>Free standard shipping on all orders above ₹999. Orders below that qualify for a flat ₹99 shipping fee.</p>
+        <p>Free standard shipping on all orders above ₹999. Orders below that qualify for a flat ₹59 shipping fee.</p>
         <p>Standard delivery takes 3–7 business days. Express delivery (₹149) arrives within 1–2 business days.</p>
         <p>Once your order ships, you&apos;ll receive a tracking link by email and SMS.</p>
       </div>

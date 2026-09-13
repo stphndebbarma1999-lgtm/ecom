@@ -16,8 +16,7 @@ export const siteConfig = {
   },
 
   contact: {
-    email: "support@drapesly.example",
-    phone: "+91 98765 43210",
+    email: "drapeslysupport@gmail.com",
     hours: "Mon – Sat, 10:00 AM – 7:00 PM IST",
     address: "Drapesly Retail HQ, Bengaluru, Karnataka, India",
   },

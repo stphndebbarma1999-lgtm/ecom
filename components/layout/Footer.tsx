@@ -108,7 +108,6 @@ export default function Footer() {
           </h3>
           <ul className="flex flex-col gap-2.5 text-sm text-neutral-300">
             <li>{siteConfig.contact.email}</li>
-            <li>{siteConfig.contact.phone}</li>
             <li className="text-neutral-400">{siteConfig.contact.hours}</li>
           </ul>
         </div>

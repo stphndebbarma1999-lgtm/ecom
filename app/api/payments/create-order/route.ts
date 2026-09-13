@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const shipping = deliveryMethod === "express" ? 149 : subtotal >= 999 ? 0 : 99;
+  const shipping = deliveryMethod === "express" ? 149 : subtotal >= 999 ? 0 : 59;
   const total = subtotal + shipping;
 
   try {
