@@ -1,8 +1,14 @@
 /**
  * One-off script that seeds Supabase with the original mock catalog
- * (data/categories.ts + data/products.ts). Safe to re-run: it upserts on
- * the natural unique keys (department+slug for categories, slug for
- * products) instead of blindly inserting duplicates.
+ * (data/categories.ts + data/products.ts).
+ *
+ * IMPORTANT: this only ever INSERTS rows that don't already exist
+ * (ignoreDuplicates: true on conflict). It must never update existing
+ * rows — once real products are being managed through /admin, a plain
+ * upsert here would silently overwrite admin-entered data (images,
+ * price, description, anything) for any row whose slug happens to
+ * match one of these seed products. Re-running this script is only
+ * meant to backfill categories/products that don't exist yet.
  *
  * Usage: npm run seed
  * Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local.
@@ -58,7 +64,7 @@ async function main() {
         image: c.image || "",
         sort_order: i,
       })),
-      { onConflict: "department,slug" }
+      { onConflict: "department,slug", ignoreDuplicates: true }
     );
   if (catError) throw catError;
   console.log("Categories seeded.");
@@ -87,7 +93,7 @@ async function main() {
       is_best_seller: p.isBestSeller,
       tags: p.tags,
     })),
-    { onConflict: "slug" }
+    { onConflict: "slug", ignoreDuplicates: true }
   );
   if (productError) throw productError;
   console.log("Products seeded.");
