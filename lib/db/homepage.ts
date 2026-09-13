@@ -15,15 +15,25 @@ const ROW_ID = "default";
  * Normalizes rows saved before the hero became a text-free full-screen
  * slider: those rows have `hero.image` (a single string, from the very
  * first version) or a `hero.images` array plus now-removed text/CTA/
- * floating-card fields, and no `midBanner` at all.
+ * floating-card fields. Also migrates the single-image `midBanner` object
+ * (from before it became a slider) into the `midBannerSlides` array.
  */
 function normalize(content: HomepageContent): HomepageContent {
   const hero = content.hero as HomepageContent["hero"] & { image?: string };
   const images = Array.isArray(hero.images) ? hero.images : hero.image ? [hero.image] : [];
+
+  const legacyMidBanner = (content as unknown as { midBanner?: { image?: string; href?: string } })
+    .midBanner;
+  const midBannerSlides = Array.isArray(content.midBannerSlides)
+    ? content.midBannerSlides
+    : legacyMidBanner?.image
+      ? [{ image: legacyMidBanner.image, href: legacyMidBanner.href || "/" }]
+      : [];
+
   return {
     ...content,
     hero: { images },
-    midBanner: content.midBanner ?? defaultHomepageContent.midBanner,
+    midBannerSlides,
   };
 }
 

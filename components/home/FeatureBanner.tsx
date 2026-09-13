@@ -1,28 +1,17 @@
-import Link from "next/link";
 import { getHomepageContent } from "@/lib/db/homepage";
-import ImageWithFallback from "@/components/ui/ImageWithFallback";
+import FeatureBannerSlider from "@/components/home/FeatureBannerSlider";
 
-/** Full-width clickable banner shown just below "Shop by Categories". */
+/** Clickable, auto-rotating banner slider shown just below "Shop by Categories". */
 export default async function FeatureBanner() {
-  const { midBanner } = await getHomepageContent();
+  const { midBannerSlides } = await getHomepageContent();
+  const slides = midBannerSlides.filter((s) => s.image);
 
-  if (!midBanner.image) return null;
+  if (slides.length === 0) return null;
 
   return (
     <section className="py-10 lg:py-14">
       <div className="container-nova">
-        <Link
-          href={midBanner.href || "/"}
-          className="group relative block aspect-[16/9] w-full overflow-hidden bg-neutral-200 sm:aspect-[21/9]"
-        >
-          <ImageWithFallback
-            src={midBanner.image}
-            alt="Featured collection"
-            fill
-            sizes="100vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        </Link>
+        <FeatureBannerSlider slides={slides} />
       </div>
     </section>
   );

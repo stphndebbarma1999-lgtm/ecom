@@ -11,10 +11,7 @@ export const defaultHomepageContent: HomepageContent = {
     images: [],
   },
 
-  midBanner: {
-    image: "",
-    href: "/new-arrivals",
-  },
+  midBannerSlides: [],
 
   banners: {
     flashSale: {

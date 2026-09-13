@@ -43,6 +43,9 @@ export default function HomepageForm({ content }: { content: HomepageContent }) 
   const featuredCategoriesText = content.featuredCategories
     .map((c) => `${c.name}|${c.href}|${c.image}`)
     .join("\n");
+  const midBannerSlidesText = content.midBannerSlides
+    .map((s) => `${s.image}|${s.href}`)
+    .join("\n");
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
@@ -162,18 +165,15 @@ export default function HomepageForm({ content }: { content: HomepageContent }) 
         </Field>
       </SectionCard>
 
-      <SectionCard title="Feature Banner (below Shop by Categories)">
-        <Field label="Banner Image" hint="Sirv URL — leave blank to hide this section">
-          <input
-            name="midBannerImage"
-            defaultValue={content.midBanner.image}
-            className={inputClass}
-          />
-        </Field>
-        <Field label="Link" hint="Where the whole banner links to when clicked">
-          <input
-            name="midBannerHref"
-            defaultValue={content.midBanner.href}
+      <SectionCard title="Feature Banner Slider (below Shop by Categories)">
+        <Field
+          label="Banner Slides"
+          hint='One per line, format "ImageURL|LinkURL" — e.g. https://.../sale.jpg|/new-arrivals. Leave blank to hide this section; add 2+ lines to make it auto-rotate.'
+        >
+          <textarea
+            name="midBannerSlides"
+            rows={5}
+            defaultValue={midBannerSlidesText}
             className={inputClass}
           />
         </Field>

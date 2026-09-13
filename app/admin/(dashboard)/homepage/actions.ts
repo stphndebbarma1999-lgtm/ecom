@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { updateHomepageContent } from "@/lib/db/homepage";
-import type { HomepageContent, FeaturedCategory } from "@/types/homepage";
+import type { HomepageContent, FeaturedCategory, BannerSlide } from "@/types/homepage";
 
 function lines(value: FormDataEntryValue | null): string[] {
   return String(value ?? "")
@@ -19,6 +19,16 @@ function parseFeaturedCategories(value: FormDataEntryValue | null): FeaturedCate
   });
 }
 
+/** Parses "ImageURL|LinkURL" lines. */
+function parseBannerSlides(value: FormDataEntryValue | null): BannerSlide[] {
+  return lines(value)
+    .map((line) => {
+      const [image, href] = line.split("|").map((s) => s.trim());
+      return { image: image || "", href: href || "/" };
+    })
+    .filter((s) => s.image);
+}
+
 export async function updateHomepageAction(
   _prevState: { error?: string; success?: boolean },
   formData: FormData
@@ -29,10 +39,7 @@ export async function updateHomepageAction(
     hero: {
       images: lines(formData.get("heroImages")).slice(0, 6),
     },
-    midBanner: {
-      image: get("midBannerImage"),
-      href: get("midBannerHref") || "/",
-    },
+    midBannerSlides: parseBannerSlides(formData.get("midBannerSlides")).slice(0, 6),
     banners: {
       flashSale: {
         label: get("flashSaleLabel"),

@@ -4,14 +4,16 @@ export interface FeaturedCategory {
   image: string;
 }
 
+export interface BannerSlide {
+  image: string;
+  href: string;
+}
+
 export interface HomepageContent {
   hero: {
     images: string[];
   };
-  midBanner: {
-    image: string;
-    href: string;
-  };
+  midBannerSlides: BannerSlide[];
   banners: {
     flashSale: {
       label: string;
