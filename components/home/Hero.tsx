@@ -3,6 +3,7 @@ import { Star } from "lucide-react";
 import { getHomepageContent } from "@/lib/db/homepage";
 import { siteConfig } from "@/config/site";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
+import HeroSlider from "@/components/home/HeroSlider";
 import Button from "@/components/ui/Button";
 import { formatPrice, cn } from "@/lib/utils";
 
@@ -44,27 +45,12 @@ export default async function Hero() {
           </div>
         </div>
 
-        {/* Hero visual: on mobile this collapses to a single simple image. The
-            image renders at its own natural aspect ratio instead of being
+        {/* Hero visual: on mobile this collapses to a single simple slider.
+            Slides render at their own natural aspect ratio instead of being
             force-cropped into a fixed box, since admin-uploaded photos vary
             in shape (portrait lifestyle shots, landscape promo banners, etc). */}
         <div className="relative mx-auto w-full max-w-md lg:mx-0 lg:max-w-none">
-          <div
-            className={cn(
-              "relative overflow-hidden bg-neutral-200",
-              !hero.image && "aspect-[4/5]"
-            )}
-          >
-            <ImageWithFallback
-              src={hero.image}
-              alt={`${siteConfig.name} seasonal collection`}
-              width={1200}
-              height={1000}
-              priority
-              sizes="(max-width: 1024px) 90vw, 45vw"
-              className="h-auto w-full object-contain"
-            />
-          </div>
+          <HeroSlider images={hero.images} alt={`${siteConfig.name} seasonal collection`} />
 
           {/* Floating product cards — desktop/tablet only */}
           {hero.floatingCards.map((card) => (

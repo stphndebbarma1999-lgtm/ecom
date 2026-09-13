@@ -51,7 +51,7 @@ export async function updateHomepageAction(
       primaryCta: { label: get("primaryCtaLabel"), href: get("primaryCtaHref") },
       secondaryCta: { label: get("secondaryCtaLabel"), href: get("secondaryCtaHref") },
       socialProof: get("socialProof"),
-      image: get("heroImage"),
+      images: lines(formData.get("heroImages")).slice(0, 6),
       floatingCards: parseFloatingCards(formData.get("floatingCards"), current.hero.floatingCards),
     },
     banners: {

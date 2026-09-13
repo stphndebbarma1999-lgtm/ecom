@@ -19,7 +19,7 @@ export interface HomepageContent {
     primaryCta: { label: string; href: string };
     secondaryCta: { label: string; href: string };
     socialProof: string;
-    image: string;
+    images: string[];
     floatingCards: FloatingProductCard[];
   };
   banners: {

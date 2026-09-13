@@ -39,6 +39,7 @@ function SectionCard({ title, children }: { title: string; children: React.React
 export default function HomepageForm({ content }: { content: HomepageContent }) {
   const [state, formAction, pending] = useActionState(updateHomepageAction, {});
 
+  const heroImagesText = content.hero.images.join("\n");
   const floatingCardsText = content.hero.floatingCards
     .map((c) => `${c.name}|${c.price}|${c.image}`)
     .join("\n");
@@ -114,8 +115,16 @@ export default function HomepageForm({ content }: { content: HomepageContent }) 
             className={inputClass}
           />
         </Field>
-        <Field label="Hero Image" hint="Sirv URL — leave blank for a placeholder">
-          <input name="heroImage" defaultValue={content.hero.image} className={inputClass} />
+        <Field
+          label="Hero Slider Images"
+          hint="One Sirv URL per line — up to 5-6 photos. They auto-rotate on the homepage; leave blank for a placeholder."
+        >
+          <textarea
+            name="heroImages"
+            rows={4}
+            defaultValue={heroImagesText}
+            className={inputClass}
+          />
         </Field>
         <Field
           label="Floating Product Cards"

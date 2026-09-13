@@ -15,7 +15,7 @@ export const defaultHomepageContent: HomepageContent = {
     primaryCta: { label: "Shop Now", href: "/new-arrivals" },
     secondaryCta: { label: "Explore Collection", href: "/best-sellers" },
     socialProof: "Loved by 50,000+ customers",
-    image: "",
+    images: [],
     floatingCards: [
       {
         name: "Sports Sneakers",
