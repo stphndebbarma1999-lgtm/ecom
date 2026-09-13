@@ -33,7 +33,7 @@ export default function Header() {
     >
       <div className="container-nova flex h-20 items-center justify-between gap-8">
         <Link href="/" className="shrink-0">
-          <Logo className="h-14 w-auto" priority />
+          <Logo className="h-[4.5rem] w-auto" priority />
         </Link>
 
         <nav className="flex items-center gap-8">

@@ -65,7 +65,7 @@ export default function MobileHeader() {
           </button>
 
           <Link href="/">
-            <Logo className="h-9 w-auto" priority />
+            <Logo className="h-12 w-auto" priority />
           </Link>
 
           <div className="flex items-center gap-4">
