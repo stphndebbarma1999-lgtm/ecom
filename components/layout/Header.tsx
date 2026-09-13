@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Search, Heart, User, ShoppingBag } from "lucide-react";
 import { mainNav } from "@/config/navigation";
-import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useSearchOverlay } from "@/context/SearchContext";
 import MegaMenu from "@/components/layout/MegaMenu";
+import Logo from "@/components/ui/Logo";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -32,8 +32,8 @@ export default function Header() {
       )}
     >
       <div className="container-nova flex h-20 items-center justify-between gap-8">
-        <Link href="/" className="shrink-0 text-2xl font-bold tracking-tight text-neutral-900">
-          {siteConfig.logo.text}
+        <Link href="/" className="shrink-0">
+          <Logo className="h-14 w-auto" priority />
         </Link>
 
         <nav className="flex items-center gap-8">

@@ -25,6 +25,7 @@ declare global {
   interface Window {
     Paytm?: {
       CheckoutJS?: {
+        onLoad: (callback: () => void) => void;
         init: (config: PaytmCheckoutConfig) => Promise<void>;
         invoke: () => void;
       };
@@ -44,6 +45,22 @@ function loadScript(src: string): Promise<void> {
     script.onload = () => resolve();
     script.onerror = () => reject(new Error("Failed to load payment script."));
     document.body.appendChild(script);
+  });
+}
+
+/**
+ * Paytm's own docs load CheckoutJS via a raw <script> tag too, but always
+ * gate init()/invoke() behind Paytm.CheckoutJS.onLoad(...) rather than the
+ * script element's load event — the library can still be finishing its own
+ * setup when the browser fires that event.
+ */
+function onCheckoutJsReady(): Promise<void> {
+  return new Promise((resolve) => {
+    if (!window.Paytm?.CheckoutJS) {
+      resolve();
+      return;
+    }
+    window.Paytm.CheckoutJS.onLoad(resolve);
   });
 }
 
@@ -222,6 +239,7 @@ function CheckoutForm() {
       }
 
       await loadScript(createData.checkoutJsUrl);
+      await onCheckoutJsReady();
 
       if (!window.Paytm?.CheckoutJS) {
         setError("Payment gateway failed to load. Please refresh and try again.");

@@ -4,11 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Search, Heart, ShoppingBag, Menu, ChevronLeft } from "lucide-react";
-import { siteConfig } from "@/config/site";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useSearchOverlay } from "@/context/SearchContext";
 import MobileNavDrawer from "@/components/layout/MobileNavDrawer";
+import Logo from "@/components/ui/Logo";
 
 export default function MobileHeader() {
   const [navOpen, setNavOpen] = useState(false);
@@ -64,8 +64,8 @@ export default function MobileHeader() {
             <Menu size={22} />
           </button>
 
-          <Link href="/" className="text-lg font-bold tracking-tight text-neutral-900">
-            {siteConfig.logo.text}
+          <Link href="/">
+            <Logo className="h-9 w-auto" priority />
           </Link>
 
           <div className="flex items-center gap-4">

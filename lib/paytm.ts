@@ -13,8 +13,11 @@ function getConfig() {
     );
   }
 
+  // Paytm migrated their PG domains from paytm.in to paytmpayments.com.
   const baseUrl =
-    environment === "production" ? "https://securegw.paytm.in" : "https://securegw-stage.paytm.in";
+    environment === "production"
+      ? "https://secure.paytmpayments.com"
+      : "https://securestage.paytmpayments.com";
 
   return { mid, merchantKey, website, environment, baseUrl };
 }
@@ -80,7 +83,7 @@ export async function initiateTransaction({
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ body, head: { signature } }),
+      body: JSON.stringify({ body, head: { signature, channelId: "WEB" } }),
     }
   );
 
@@ -89,6 +92,7 @@ export async function initiateTransaction({
   const txnToken = data?.body?.txnToken;
 
   if (resultStatus !== "S" || !txnToken) {
+    console.error("Paytm initiateTransaction raw response:", JSON.stringify(data, null, 2));
     const message = data?.body?.resultInfo?.resultMsg || "Failed to initiate Paytm transaction.";
     throw new Error(message);
   }
