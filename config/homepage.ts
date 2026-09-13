@@ -8,40 +8,12 @@ import type { HomepageContent } from "@/types/homepage";
  */
 export const defaultHomepageContent: HomepageContent = {
   hero: {
-    eyebrow: "Trending Now",
-    heading: ["Discover Style", "You'll Love"],
-    subtitle:
-      "Shop the latest fashion, footwear, accessories and beauty essentials curated for modern lifestyles.",
-    primaryCta: { label: "Shop Now", href: "/new-arrivals" },
-    secondaryCta: { label: "Explore Collection", href: "/best-sellers" },
-    socialProof: "Loved by 50,000+ customers",
     images: [],
-    floatingCards: [
-      {
-        name: "Sports Sneakers",
-        price: 3499,
-        image: "",
-        className: "top-[8%] left-[-6%] md:left-[-8%]",
-      },
-      {
-        name: "Classic Watch",
-        price: 4999,
-        image: "",
-        className: "top-[4%] right-[-4%] md:right-[-6%]",
-      },
-      {
-        name: "Wireless Earbuds",
-        price: 2299,
-        image: "",
-        className: "top-[42%] left-[-10%] md:left-[-12%]",
-      },
-      {
-        name: "Aviator Sunglasses",
-        price: 1899,
-        image: "",
-        className: "bottom-[10%] right-[-6%] md:right-[-8%]",
-      },
-    ],
+  },
+
+  midBanner: {
+    image: "",
+    href: "/new-arrivals",
   },
 
   banners: {

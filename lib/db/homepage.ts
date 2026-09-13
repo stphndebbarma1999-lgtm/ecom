@@ -12,15 +12,19 @@ const ROW_ID = "default";
  * three, since they all run within the same render pass.
  */
 /**
- * Normalizes rows saved before the hero became a multi-image slider: those
- * rows have `hero.image` (a single string) instead of `hero.images`.
+ * Normalizes rows saved before the hero became a text-free full-screen
+ * slider: those rows have `hero.image` (a single string, from the very
+ * first version) or a `hero.images` array plus now-removed text/CTA/
+ * floating-card fields, and no `midBanner` at all.
  */
 function normalize(content: HomepageContent): HomepageContent {
   const hero = content.hero as HomepageContent["hero"] & { image?: string };
-  if (!Array.isArray(hero.images)) {
-    return { ...content, hero: { ...hero, images: hero.image ? [hero.image] : [] } };
-  }
-  return content;
+  const images = Array.isArray(hero.images) ? hero.images : hero.image ? [hero.image] : [];
+  return {
+    ...content,
+    hero: { images },
+    midBanner: content.midBanner ?? defaultHomepageContent.midBanner,
+  };
 }
 
 export const getHomepageContent = cache(async (): Promise<HomepageContent> => {

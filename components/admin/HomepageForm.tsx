@@ -40,100 +40,21 @@ export default function HomepageForm({ content }: { content: HomepageContent }) 
   const [state, formAction, pending] = useActionState(updateHomepageAction, {});
 
   const heroImagesText = content.hero.images.join("\n");
-  const floatingCardsText = content.hero.floatingCards
-    .map((c) => `${c.name}|${c.price}|${c.image}`)
-    .join("\n");
   const featuredCategoriesText = content.featuredCategories
     .map((c) => `${c.name}|${c.href}|${c.image}`)
     .join("\n");
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
-      <SectionCard title="Hero Section">
-        <Field label="Eyebrow (small label above heading)">
-          <input name="eyebrow" required defaultValue={content.hero.eyebrow} className={inputClass} />
-        </Field>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Heading Line 1">
-            <input
-              name="headingLine1"
-              required
-              defaultValue={content.hero.heading[0]}
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Heading Line 2 (optional)">
-            <input
-              name="headingLine2"
-              defaultValue={content.hero.heading[1]}
-              className={inputClass}
-            />
-          </Field>
-        </div>
-        <Field label="Subtitle">
-          <textarea
-            name="subtitle"
-            rows={2}
-            defaultValue={content.hero.subtitle}
-            className={inputClass}
-          />
-        </Field>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Primary Button Text">
-            <input
-              name="primaryCtaLabel"
-              defaultValue={content.hero.primaryCta.label}
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Primary Button Link">
-            <input
-              name="primaryCtaHref"
-              defaultValue={content.hero.primaryCta.href}
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Secondary Button Text">
-            <input
-              name="secondaryCtaLabel"
-              defaultValue={content.hero.secondaryCta.label}
-              className={inputClass}
-            />
-          </Field>
-          <Field label="Secondary Button Link">
-            <input
-              name="secondaryCtaHref"
-              defaultValue={content.hero.secondaryCta.href}
-              className={inputClass}
-            />
-          </Field>
-        </div>
-        <Field label="Social Proof Text">
-          <input
-            name="socialProof"
-            defaultValue={content.hero.socialProof}
-            className={inputClass}
-          />
-        </Field>
+      <SectionCard title="Hero Section (Full-Screen Slider)">
         <Field
           label="Hero Slider Images"
-          hint="One Sirv URL per line — up to 5-6 photos. They auto-rotate on the homepage; leave blank for a placeholder."
+          hint="One Sirv URL per line — up to 5-6 photos. They fill the screen and auto-rotate with no text overlay; leave blank for a placeholder."
         >
           <textarea
             name="heroImages"
-            rows={4}
+            rows={6}
             defaultValue={heroImagesText}
-            className={inputClass}
-          />
-        </Field>
-        <Field
-          label="Floating Product Cards"
-          hint='One per line, format "Name|Price|ImageURL" — e.g. Sports Sneakers|3499|https://...'
-        >
-          <textarea
-            name="floatingCards"
-            rows={4}
-            defaultValue={floatingCardsText}
             className={inputClass}
           />
         </Field>
@@ -236,6 +157,23 @@ export default function HomepageForm({ content }: { content: HomepageContent }) 
             name="featuredCategories"
             rows={8}
             defaultValue={featuredCategoriesText}
+            className={inputClass}
+          />
+        </Field>
+      </SectionCard>
+
+      <SectionCard title="Feature Banner (below Shop by Categories)">
+        <Field label="Banner Image" hint="Sirv URL — leave blank to hide this section">
+          <input
+            name="midBannerImage"
+            defaultValue={content.midBanner.image}
+            className={inputClass}
+          />
+        </Field>
+        <Field label="Link" hint="Where the whole banner links to when clicked">
+          <input
+            name="midBannerHref"
+            defaultValue={content.midBanner.href}
             className={inputClass}
           />
         </Field>

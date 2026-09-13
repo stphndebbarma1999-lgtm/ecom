@@ -1,10 +1,3 @@
-export interface FloatingProductCard {
-  name: string;
-  price: number;
-  image: string;
-  className: string;
-}
-
 export interface FeaturedCategory {
   name: string;
   href: string;
@@ -13,14 +6,11 @@ export interface FeaturedCategory {
 
 export interface HomepageContent {
   hero: {
-    eyebrow: string;
-    heading: string[];
-    subtitle: string;
-    primaryCta: { label: string; href: string };
-    secondaryCta: { label: string; href: string };
-    socialProof: string;
     images: string[];
-    floatingCards: FloatingProductCard[];
+  };
+  midBanner: {
+    image: string;
+    href: string;
   };
   banners: {
     flashSale: {
