@@ -1,10 +1,10 @@
-import { homepageConfig } from "@/config/homepage";
+import { getHomepageContent } from "@/lib/db/homepage";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import Button from "@/components/ui/Button";
 import CountdownTimer from "@/components/home/CountdownTimer";
 
-export default function PromoBanners() {
-  const { flashSale, newCollection } = homepageConfig.banners;
+export default async function PromoBanners() {
+  const { flashSale, newCollection } = (await getHomepageContent()).banners;
 
   return (
     <section className="py-10 lg:py-14">

@@ -95,6 +95,16 @@ create table if not exists pending_orders (
   created_at timestamptz not null default now()
 );
 
+-- Single-row table holding the homepage hero/banners/featured-categories
+-- content as JSON, editable from /admin/homepage. id is always 'default' —
+-- there's exactly one row. Falls back to config/homepage.ts's
+-- defaultHomepageContent if this row doesn't exist yet.
+create table if not exists homepage_content (
+  id text primary key default 'default',
+  content jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
 -- Every table is accessed exclusively through server-side code using the
 -- service_role key, so Row Level Security stays enabled with no policies:
 -- this blocks all access via the public anon key by default (defense in depth).
@@ -103,3 +113,4 @@ alter table products enable row level security;
 alter table orders enable row level security;
 alter table order_items enable row level security;
 alter table pending_orders enable row level security;
+alter table homepage_content enable row level security;

@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, FolderTree, ShoppingCart, ExternalLink, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  FolderTree,
+  ShoppingCart,
+  Image as ImageIcon,
+  ExternalLink,
+  LogOut,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/app/admin/actions";
 import { siteConfig } from "@/config/site";
@@ -12,6 +20,7 @@ const navItems = [
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: FolderTree },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/admin/homepage", label: "Homepage", icon: ImageIcon },
 ];
 
 export default function AdminSidebar() {

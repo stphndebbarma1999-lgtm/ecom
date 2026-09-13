@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { homepageConfig } from "@/config/homepage";
+import { getHomepageContent } from "@/lib/db/homepage";
 import { siteConfig } from "@/config/site";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import Button from "@/components/ui/Button";
 import { formatPrice, cn } from "@/lib/utils";
 
-export default function Hero() {
-  const { hero } = homepageConfig;
+export default async function Hero() {
+  const { hero } = await getHomepageContent();
 
   return (
     <section className="overflow-x-clip border-b border-neutral-100 bg-neutral-50">

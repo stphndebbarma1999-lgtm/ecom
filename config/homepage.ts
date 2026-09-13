@@ -1,17 +1,12 @@
+import type { HomepageContent } from "@/types/homepage";
+
 /**
- * Homepage content configuration.
- * Replace any empty string with a real Sirv URL when available —
- * the ImageWithFallback component renders a neutral placeholder until then.
+ * Default/fallback homepage content — used only if no row exists yet in the
+ * homepage_content table (i.e. before the first admin save). Once an admin
+ * saves changes at /admin/homepage, the database row takes over and this
+ * file is no longer read at runtime; see lib/db/homepage.ts.
  */
-
-export interface FloatingProductCard {
-  name: string;
-  price: number;
-  image: string;
-  className: string;
-}
-
-export const homepageConfig = {
+export const defaultHomepageContent: HomepageContent = {
   hero: {
     eyebrow: "Trending Now",
     heading: ["Discover Style", "You'll Love"],
@@ -46,7 +41,7 @@ export const homepageConfig = {
         image: "",
         className: "bottom-[10%] right-[-6%] md:right-[-8%]",
       },
-    ] satisfies FloatingProductCard[],
+    ],
   },
 
   banners: {
@@ -55,7 +50,7 @@ export const homepageConfig = {
       heading: "Up To 70% Off",
       cta: { label: "Shop Sale Now", href: "/best-sellers" },
       image: "",
-      endsAt: "", // ISO date string, e.g. "2026-12-31T23:59:59"
+      endsAt: "",
     },
     newCollection: {
       label: "New Collection",

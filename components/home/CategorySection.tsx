@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { homepageConfig } from "@/config/homepage";
+import { getHomepageContent } from "@/lib/db/homepage";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import SectionHeader from "@/components/ui/SectionHeader";
 
-export default function CategorySection() {
+export default async function CategorySection() {
+  const { featuredCategories } = await getHomepageContent();
+
   return (
     <section className="border-b border-neutral-100 py-10 lg:py-14">
       <div className="container-nova">
@@ -12,7 +14,7 @@ export default function CategorySection() {
 
         {/* Mobile: swipeable horizontal carousel. Desktop: grid row. */}
         <div className="mt-6 flex gap-4 overflow-x-auto no-scrollbar sm:grid sm:grid-cols-4 sm:gap-5 sm:overflow-visible lg:grid-cols-8">
-          {homepageConfig.featuredCategories.map((category) => (
+          {featuredCategories.map((category) => (
             <Link
               key={category.name}
               href={category.href}
