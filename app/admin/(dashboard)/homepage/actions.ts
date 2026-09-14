@@ -11,12 +11,17 @@ function lines(value: FormDataEntryValue | null): string[] {
     .filter(Boolean);
 }
 
-/** Parses "Name|href|ImageURL" lines. */
-function parseFeaturedCategories(value: FormDataEntryValue | null): FeaturedCategory[] {
-  return lines(value).map((line) => {
-    const [name, href, image] = line.split("|").map((s) => s.trim());
-    return { name: name || "", href: href || "/", image: image || "" };
-  });
+/** Reads the per-category Name/Link/Image URL fields rendered by HomepageForm. */
+function parseFeaturedCategories(formData: FormData): FeaturedCategory[] {
+  const count = Number(formData.get("categoryCount") ?? 0);
+  const categories: FeaturedCategory[] = [];
+  for (let i = 0; i < count; i++) {
+    const name = String(formData.get(`category_${i}_name`) ?? "").trim();
+    const href = String(formData.get(`category_${i}_href`) ?? "").trim();
+    const image = String(formData.get(`category_${i}_image`) ?? "").trim();
+    categories.push({ name, href: href || "/", image });
+  }
+  return categories;
 }
 
 /** Parses "ImageURL|LinkURL" lines. */
@@ -55,7 +60,7 @@ export async function updateHomepageAction(
         image: get("newCollectionImage"),
       },
     },
-    featuredCategories: parseFeaturedCategories(formData.get("featuredCategories")),
+    featuredCategories: parseFeaturedCategories(formData),
   };
 
   try {

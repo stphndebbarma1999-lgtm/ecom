@@ -40,9 +40,6 @@ export default function HomepageForm({ content }: { content: HomepageContent }) 
   const [state, formAction, pending] = useActionState(updateHomepageAction, {});
 
   const heroImagesText = content.hero.images.join("\n");
-  const featuredCategoriesText = content.featuredCategories
-    .map((c) => `${c.name}|${c.href}|${c.image}`)
-    .join("\n");
   const midBannerSlidesText = content.midBannerSlides
     .map((s) => `${s.image}|${s.href}`)
     .join("\n");
@@ -152,17 +149,34 @@ export default function HomepageForm({ content }: { content: HomepageContent }) 
       </SectionCard>
 
       <SectionCard title="Shop by Categories Tiles">
-        <Field
-          label="Categories"
-          hint='One per line, format "Name|Link|ImageURL" — e.g. Men|/men|https://...'
-        >
-          <textarea
-            name="featuredCategories"
-            rows={8}
-            defaultValue={featuredCategoriesText}
-            className={inputClass}
-          />
-        </Field>
+        <input type="hidden" name="categoryCount" value={content.featuredCategories.length} />
+        <div className="flex flex-col gap-5">
+          {content.featuredCategories.map((category, i) => (
+            <div key={i} className="grid grid-cols-1 gap-3 border-b border-neutral-100 pb-5 last:border-0 last:pb-0 sm:grid-cols-3">
+              <Field label="Name">
+                <input
+                  name={`category_${i}_name`}
+                  defaultValue={category.name}
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Link">
+                <input
+                  name={`category_${i}_href`}
+                  defaultValue={category.href}
+                  className={inputClass}
+                />
+              </Field>
+              <Field label="Image URL" hint="Paste a Sirv photo link here">
+                <input
+                  name={`category_${i}_image`}
+                  defaultValue={category.image}
+                  className={inputClass}
+                />
+              </Field>
+            </div>
+          ))}
+        </div>
       </SectionCard>
 
       <SectionCard title="Feature Banner Slider (below Shop by Categories)">
