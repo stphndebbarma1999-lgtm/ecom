@@ -23,27 +23,40 @@ export default function FeatureBannerSlider({ slides }: { slides: BannerSlide[] 
 
   return (
     <div
-      className="group relative aspect-[16/9] w-full overflow-hidden bg-neutral-200 sm:aspect-[21/9]"
+      className="group relative aspect-[16/9] w-full overflow-hidden bg-neutral-200 lg:aspect-[21/9]"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
       {slides.map((slide, i) => (
         <Link
-          key={slide.image + i}
+          key={slide.desktop + slide.mobile + i}
           href={slide.href || "/"}
           className={cn(
             "absolute inset-0 transition-opacity duration-700 ease-in-out",
             i === index ? "opacity-100" : "pointer-events-none opacity-0"
           )}
         >
-          <ImageWithFallback
-            src={slide.image}
-            alt={`Featured collection ${i + 1}`}
-            fill
-            priority={i === 0}
-            sizes="100vw"
-            className="object-cover transition-transform duration-500 hover:scale-105"
-          />
+          {/* Mobile photo below lg, desktop photo at lg and up — each falls back to the other if only one was uploaded. */}
+          <div className="absolute inset-0 lg:hidden">
+            <ImageWithFallback
+              src={slide.mobile || slide.desktop}
+              alt={`Featured collection ${i + 1}`}
+              fill
+              priority={i === 0}
+              sizes="100vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
+          <div className="absolute inset-0 hidden lg:block">
+            <ImageWithFallback
+              src={slide.desktop || slide.mobile}
+              alt={`Featured collection ${i + 1}`}
+              fill
+              priority={i === 0}
+              sizes="100vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </div>
         </Link>
       ))}
 
@@ -69,7 +82,7 @@ export default function FeatureBannerSlider({ slides }: { slides: BannerSlide[] 
           <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/25 px-2 py-1.5 backdrop-blur-sm sm:bottom-5">
             {slides.map((slide, i) => (
               <button
-                key={slide.image + i}
+                key={slide.desktop + slide.mobile + i}
                 type="button"
                 aria-label={`Go to slide ${i + 1}`}
                 onClick={() => setIndex(i)}

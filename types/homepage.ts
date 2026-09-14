@@ -4,14 +4,20 @@ export interface FeaturedCategory {
   image: string;
 }
 
+export interface HeroSlide {
+  desktop: string;
+  mobile: string;
+}
+
 export interface BannerSlide {
-  image: string;
+  desktop: string;
+  mobile: string;
   href: string;
 }
 
 export interface HomepageContent {
   hero: {
-    images: string[];
+    slides: HeroSlide[];
   };
   midBannerSlides: BannerSlide[];
   banners: {

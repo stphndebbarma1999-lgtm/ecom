@@ -13,7 +13,7 @@ export default async function Hero() {
 
   return (
     <section className="h-[calc(100svh-92px)] w-full lg:h-[calc(100vh-116px)]">
-      <HeroSlider images={hero.images} alt={`${siteConfig.name} collection`} />
+      <HeroSlider slides={hero.slides} alt={`${siteConfig.name} collection`} />
     </section>
   );
 }

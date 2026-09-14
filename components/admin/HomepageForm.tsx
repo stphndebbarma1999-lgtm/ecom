@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import type { HomepageContent } from "@/types/homepage";
 import { updateHomepageAction } from "@/app/admin/(dashboard)/homepage/actions";
+import SlideListEditor from "@/components/admin/SlideListEditor";
 
 const inputClass =
   "border border-neutral-300 px-3.5 py-2.5 text-sm text-neutral-900 outline-none focus:border-neutral-900";
@@ -39,25 +40,27 @@ function SectionCard({ title, children }: { title: string; children: React.React
 export default function HomepageForm({ content }: { content: HomepageContent }) {
   const [state, formAction, pending] = useActionState(updateHomepageAction, {});
 
-  const heroImagesText = content.hero.images.join("\n");
-  const midBannerSlidesText = content.midBannerSlides
-    .map((s) => `${s.image}|${s.href}`)
-    .join("\n");
-
   return (
     <form action={formAction} className="flex flex-col gap-6">
       <SectionCard title="Hero Section (Full-Screen Slider)">
-        <Field
-          label="Hero Slider Images"
-          hint="One Sirv URL per line — up to 5-6 photos. They fill the screen and auto-rotate with no text overlay; leave blank for a placeholder."
-        >
-          <textarea
-            name="heroImages"
-            rows={6}
-            defaultValue={heroImagesText}
-            className={inputClass}
-          />
-        </Field>
+        <p className="-mt-1 text-xs text-neutral-500">
+          Recommended photo size — <strong>Desktop: 1920 × 1080px</strong> (landscape). <strong>Mobile:
+          1080 × 1920px</strong> (portrait, fills the phone screen). Up to 6 slides; if you only have one
+          size, it&apos;s used for both.
+        </p>
+        <SlideListEditor
+          namePrefix="hero"
+          countFieldName="heroSlideCount"
+          max={6}
+          addLabel="+ Add Hero Slide"
+          rowGridClassName="sm:grid-cols-[1fr_1fr_auto]"
+          initialRows={content.hero.slides as unknown as Record<string, string>[]}
+          emptyRow={{ desktop: "", mobile: "" }}
+          fields={[
+            { key: "desktop", label: "Desktop Photo URL", hint: "1920 × 1080px" },
+            { key: "mobile", label: "Mobile Photo URL", hint: "1080 × 1920px" },
+          ]}
+        />
       </SectionCard>
 
       <SectionCard title="Flash Sale Banner">
@@ -180,17 +183,24 @@ export default function HomepageForm({ content }: { content: HomepageContent }) 
       </SectionCard>
 
       <SectionCard title="Feature Banner Slider (below Shop by Categories)">
-        <Field
-          label="Banner Slides"
-          hint='One per line, format "ImageURL|LinkURL" — e.g. https://.../sale.jpg|/new-arrivals. Leave blank to hide this section; add 2+ lines to make it auto-rotate.'
-        >
-          <textarea
-            name="midBannerSlides"
-            rows={5}
-            defaultValue={midBannerSlidesText}
-            className={inputClass}
-          />
-        </Field>
+        <p className="-mt-1 text-xs text-neutral-500">
+          Recommended photo size — <strong>Desktop: 2100 × 900px</strong> (wide banner). <strong>Mobile:
+          1280 × 720px</strong>. Leave empty to hide this section; add 2+ slides to make it auto-rotate.
+        </p>
+        <SlideListEditor
+          namePrefix="banner"
+          countFieldName="bannerSlideCount"
+          max={6}
+          addLabel="+ Add Banner Slide"
+          rowGridClassName="sm:grid-cols-[1fr_1fr_1fr_auto]"
+          initialRows={content.midBannerSlides as unknown as Record<string, string>[]}
+          emptyRow={{ desktop: "", mobile: "", href: "/" }}
+          fields={[
+            { key: "desktop", label: "Desktop Photo URL", hint: "2100 × 900px" },
+            { key: "mobile", label: "Mobile Photo URL", hint: "1280 × 720px" },
+            { key: "href", label: "Link" },
+          ]}
+        />
       </SectionCard>
 
       {state.error && <p className="text-sm text-red-600">{state.error}</p>}

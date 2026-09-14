@@ -8,7 +8,7 @@ import type { HomepageContent } from "@/types/homepage";
  */
 export const defaultHomepageContent: HomepageContent = {
   hero: {
-    images: [],
+    slides: [],
   },
 
   midBannerSlides: [],

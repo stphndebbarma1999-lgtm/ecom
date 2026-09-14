@@ -4,7 +4,7 @@ import FeatureBannerSlider from "@/components/home/FeatureBannerSlider";
 /** Clickable, auto-rotating banner slider shown just below "Shop by Categories". */
 export default async function FeatureBanner() {
   const { midBannerSlides } = await getHomepageContent();
-  const slides = midBannerSlides.filter((s) => s.image);
+  const slides = midBannerSlides.filter((s) => s.desktop || s.mobile);
 
   if (slides.length === 0) return null;
 

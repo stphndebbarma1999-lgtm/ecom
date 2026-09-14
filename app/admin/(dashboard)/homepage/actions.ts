@@ -2,14 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { updateHomepageContent } from "@/lib/db/homepage";
-import type { HomepageContent, FeaturedCategory, BannerSlide } from "@/types/homepage";
-
-function lines(value: FormDataEntryValue | null): string[] {
-  return String(value ?? "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-}
+import type { HomepageContent, FeaturedCategory, HeroSlide, BannerSlide } from "@/types/homepage";
 
 /** Reads the per-category Name/Link/Image URL fields rendered by HomepageForm. */
 function parseFeaturedCategories(formData: FormData): FeaturedCategory[] {
@@ -24,14 +17,29 @@ function parseFeaturedCategories(formData: FormData): FeaturedCategory[] {
   return categories;
 }
 
-/** Parses "ImageURL|LinkURL" lines. */
-function parseBannerSlides(value: FormDataEntryValue | null): BannerSlide[] {
-  return lines(value)
-    .map((line) => {
-      const [image, href] = line.split("|").map((s) => s.trim());
-      return { image: image || "", href: href || "/" };
-    })
-    .filter((s) => s.image);
+/** Reads the indexed hero_{i}_desktop / hero_{i}_mobile fields rendered by SlideListEditor. */
+function parseHeroSlides(formData: FormData): HeroSlide[] {
+  const count = Number(formData.get("heroSlideCount") ?? 0);
+  const slides: HeroSlide[] = [];
+  for (let i = 0; i < count; i++) {
+    const desktop = String(formData.get(`hero_${i}_desktop`) ?? "").trim();
+    const mobile = String(formData.get(`hero_${i}_mobile`) ?? "").trim();
+    if (desktop || mobile) slides.push({ desktop, mobile });
+  }
+  return slides;
+}
+
+/** Reads the indexed banner_{i}_desktop / _mobile / _href fields rendered by SlideListEditor. */
+function parseBannerSlides(formData: FormData): BannerSlide[] {
+  const count = Number(formData.get("bannerSlideCount") ?? 0);
+  const slides: BannerSlide[] = [];
+  for (let i = 0; i < count; i++) {
+    const desktop = String(formData.get(`banner_${i}_desktop`) ?? "").trim();
+    const mobile = String(formData.get(`banner_${i}_mobile`) ?? "").trim();
+    const href = String(formData.get(`banner_${i}_href`) ?? "").trim();
+    if (desktop || mobile) slides.push({ desktop, mobile, href: href || "/" });
+  }
+  return slides;
 }
 
 export async function updateHomepageAction(
@@ -42,9 +50,9 @@ export async function updateHomepageAction(
 
   const content: HomepageContent = {
     hero: {
-      images: lines(formData.get("heroImages")).slice(0, 6),
+      slides: parseHeroSlides(formData).slice(0, 6),
     },
-    midBannerSlides: parseBannerSlides(formData.get("midBannerSlides")).slice(0, 6),
+    midBannerSlides: parseBannerSlides(formData).slice(0, 6),
     banners: {
       flashSale: {
         label: get("flashSaleLabel"),
