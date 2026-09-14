@@ -1,42 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import ImageWithFallback from "@/components/ui/ImageWithFallback";
 import type { HeroSlide } from "@/types/homepage";
+import { useSwipeCarousel } from "@/hooks/useSwipeCarousel";
 import { cn } from "@/lib/utils";
 
-const AUTO_ADVANCE_MS = 5000;
-
 export default function HeroSlider({ slides, alt }: { slides: HeroSlide[]; alt: string }) {
-  const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const { index, setIndex, dragX, isDragging, handlers } = useSwipeCarousel(slides.length);
 
-  useEffect(() => {
-    if (slides.length < 2 || paused) return;
-    const id = setInterval(() => {
-      setIndex((i) => (i + 1) % slides.length);
-    }, AUTO_ADVANCE_MS);
-    return () => clearInterval(id);
-  }, [slides.length, paused]);
+  if (slides.length === 0) {
+    return (
+      <div className="relative h-full w-full overflow-hidden bg-neutral-200">
+        <ImageWithFallback src="" alt={alt} fill className="object-cover" />
+      </div>
+    );
+  }
 
   return (
-    <div
-      className="group relative h-full w-full overflow-hidden bg-neutral-200"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      {slides.length === 0 ? (
-        <ImageWithFallback src="" alt={alt} fill className="object-cover" />
-      ) : (
-        slides.map((slide, i) => (
-          <div
-            key={slide.desktop + slide.mobile + i}
-            className={cn(
-              "absolute inset-0 transition-opacity duration-700 ease-in-out",
-              i === index ? "opacity-100" : "pointer-events-none opacity-0"
-            )}
-          >
+    <div className="relative h-full w-full overflow-hidden bg-neutral-200" {...handlers} style={{ touchAction: "pan-y" }}>
+      <div
+        className="flex h-full w-full"
+        style={{
+          transform: `translateX(calc(${-index * 100}% + ${dragX}px))`,
+          transition: isDragging ? "none" : "transform 500ms ease-in-out",
+        }}
+      >
+        {slides.map((slide, i) => (
+          <div key={slide.desktop + slide.mobile + i} className="relative h-full w-full shrink-0">
             {/* Mobile photo below lg, desktop photo at lg and up — each falls back to the other if only one was uploaded. */}
             <div className="absolute inset-0 lg:hidden">
               <ImageWithFallback
@@ -45,7 +35,7 @@ export default function HeroSlider({ slides, alt }: { slides: HeroSlide[]; alt: 
                 fill
                 priority={i === 0}
                 sizes="100vw"
-                className="object-cover"
+                className="pointer-events-none object-cover"
               />
             </div>
             <div className="absolute inset-0 hidden lg:block">
@@ -55,47 +45,28 @@ export default function HeroSlider({ slides, alt }: { slides: HeroSlide[]; alt: 
                 fill
                 priority={i === 0}
                 sizes="100vw"
-                className="object-cover"
+                className="pointer-events-none object-cover"
               />
             </div>
           </div>
-        ))
-      )}
+        ))}
+      </div>
 
       {slides.length > 1 && (
-        <>
-          <button
-            type="button"
-            aria-label="Previous slide"
-            onClick={() => setIndex((i) => (i - 1 + slides.length) % slides.length)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 p-2 opacity-0 transition-opacity hover:bg-white group-hover:opacity-100 max-lg:opacity-100 sm:left-5"
-          >
-            <ChevronLeft size={20} className="text-neutral-900" />
-          </button>
-          <button
-            type="button"
-            aria-label="Next slide"
-            onClick={() => setIndex((i) => (i + 1) % slides.length)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 p-2 opacity-0 transition-opacity hover:bg-white group-hover:opacity-100 max-lg:opacity-100 sm:right-5"
-          >
-            <ChevronRight size={20} className="text-neutral-900" />
-          </button>
-
-          <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/25 px-2 py-1.5 backdrop-blur-sm sm:bottom-8">
-            {slides.map((slide, i) => (
-              <button
-                key={slide.desktop + slide.mobile + i}
-                type="button"
-                aria-label={`Go to slide ${i + 1}`}
-                onClick={() => setIndex(i)}
-                className={cn(
-                  "h-1.5 rounded-full transition-all",
-                  i === index ? "w-5 bg-white" : "w-1.5 bg-white/60 hover:bg-white/80"
-                )}
-              />
-            ))}
-          </div>
-        </>
+        <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-1.5 rounded-full bg-black/25 px-2 py-1.5 backdrop-blur-sm sm:bottom-8">
+          {slides.map((slide, i) => (
+            <button
+              key={slide.desktop + slide.mobile + i}
+              type="button"
+              aria-label={`Go to slide ${i + 1}`}
+              onClick={() => setIndex(i)}
+              className={cn(
+                "h-1.5 rounded-full transition-all",
+                i === index ? "w-5 bg-white" : "w-1.5 bg-white/60 hover:bg-white/80"
+              )}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
