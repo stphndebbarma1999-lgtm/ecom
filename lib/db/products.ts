@@ -163,9 +163,17 @@ export async function getNewArrivals(limit?: number): Promise<Product[]> {
     .order("created_at", { ascending: false });
   if (limit) query = query.limit(limit);
 
-  const { data, error } = await query;
-  if (error) throw error;
-  return ((data as unknown as ProductRow[]) ?? []).map(mapRow);
+  // Homepage-critical: a transient Supabase blip here must not crash the
+  // whole page — degrade to an empty section instead (see also
+  // getBestSellers and getHomepageContent, same reasoning).
+  try {
+    const { data, error } = await query;
+    if (error) throw error;
+    return ((data as unknown as ProductRow[]) ?? []).map(mapRow);
+  } catch (err) {
+    console.error("getNewArrivals failed:", err);
+    return [];
+  }
 }
 
 export async function getBestSellers(limit?: number): Promise<Product[]> {
@@ -176,9 +184,14 @@ export async function getBestSellers(limit?: number): Promise<Product[]> {
     .order("created_at", { ascending: false });
   if (limit) query = query.limit(limit);
 
-  const { data, error } = await query;
-  if (error) throw error;
-  return ((data as unknown as ProductRow[]) ?? []).map(mapRow);
+  try {
+    const { data, error } = await query;
+    if (error) throw error;
+    return ((data as unknown as ProductRow[]) ?? []).map(mapRow);
+  } catch (err) {
+    console.error("getBestSellers failed:", err);
+    return [];
+  }
 }
 
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {

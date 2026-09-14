@@ -61,14 +61,22 @@ function normalize(content: HomepageContent): HomepageContent {
 }
 
 export const getHomepageContent = cache(async (): Promise<HomepageContent> => {
-  const { data, error } = await getSupabaseAdmin()
-    .from("homepage_content")
-    .select("content")
-    .eq("id", ROW_ID)
-    .maybeSingle();
+  // Homepage-critical: a transient Supabase blip here must not crash the
+  // whole page — fall back to the default content instead (see also
+  // getNewArrivals and getBestSellers, same reasoning).
+  try {
+    const { data, error } = await getSupabaseAdmin()
+      .from("homepage_content")
+      .select("content")
+      .eq("id", ROW_ID)
+      .maybeSingle();
 
-  if (error) throw error;
-  return normalize(data ? (data.content as HomepageContent) : defaultHomepageContent);
+    if (error) throw error;
+    return normalize(data ? (data.content as HomepageContent) : defaultHomepageContent);
+  } catch (err) {
+    console.error("getHomepageContent failed:", err);
+    return normalize(defaultHomepageContent);
+  }
 });
 
 export async function updateHomepageContent(content: HomepageContent): Promise<void> {
