@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { initiateTransaction, getPaytmClientConfig } from "@/lib/paytm";
+import { createRazorpayOrder, getRazorpayClientConfig } from "@/lib/razorpay";
 import { getProductById } from "@/lib/db/products";
 import { createPendingOrder } from "@/lib/db/pendingOrders";
 import type { DeliveryMethod, OrderShippingAddress, PaymentMethod } from "@/types/order";
@@ -29,8 +29,9 @@ function isNonEmptyString(value: unknown): value is string {
  * Computes the charge amount server-side from current product prices rather
  * than trusting a client-supplied total — the only way to stop a tampered
  * request from paying less than the real price. The full order payload is
- * stashed (keyed by the Paytm order id we generate) so it can be recovered
- * once payment is confirmed — Paytm's callback never carries it back to us.
+ * stashed (keyed by the Razorpay order id) so it can be recovered once
+ * payment is confirmed — neither Checkout.js's handler nor the webhook ever
+ * carries it back to us.
  */
 export async function POST(request: NextRequest) {
   let body: RequestBody;
@@ -92,13 +93,13 @@ export async function POST(request: NextRequest) {
   const total = subtotal + shipping;
 
   try {
-    const { paytmOrderId, txnToken, amount } = await initiateTransaction({
+    const receipt = `DRAPESLY${Date.now()}`;
+    const { razorpayOrderId, amount, currency } = await createRazorpayOrder({
       amount: total,
-      customerEmail: body.customerEmail,
-      customerPhone: body.customerPhone,
+      receipt,
     });
 
-    await createPendingOrder(paytmOrderId, {
+    await createPendingOrder(razorpayOrderId, {
       customerName: body.customerName,
       customerEmail: body.customerEmail,
       customerPhone: body.customerPhone,
@@ -112,17 +113,17 @@ export async function POST(request: NextRequest) {
       items: resolvedItems,
     });
 
-    const { mid, checkoutJsUrl } = getPaytmClientConfig();
+    const { keyId, checkoutJsUrl } = getRazorpayClientConfig();
 
     return NextResponse.json({
-      paytmOrderId,
-      txnToken,
+      razorpayOrderId,
       amount,
-      mid,
+      currency,
+      keyId,
       checkoutJsUrl,
     });
   } catch (err) {
-    console.error("Failed to initiate Paytm transaction:", err);
+    console.error("Failed to create Razorpay order:", err);
     return NextResponse.json({ error: "Could not start payment. Please try again." }, { status: 500 });
   }
 }

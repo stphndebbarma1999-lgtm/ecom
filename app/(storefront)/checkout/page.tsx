@@ -1,35 +1,38 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { CheckCircle2, Truck, Zap, Smartphone, CreditCard, Landmark } from "lucide-react";
 import Breadcrumb from "@/components/ui/Breadcrumb";
 import Button from "@/components/ui/Button";
 import CartSummary from "@/components/cart/CartSummary";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/CartContext";
+import { siteConfig } from "@/config/site";
 
 type DeliveryOption = "standard" | "express";
 type PaymentOption = "upi" | "card" | "netbanking";
 
-interface PaytmCheckoutConfig {
-  root?: string;
-  flow?: string;
-  data: { orderId: string; token: string; tokenType: string; amount: string };
-  handler: {
-    notifyMerchant: (eventName: string, data: unknown) => void;
-  };
+interface RazorpaySuccessResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
+
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  order_id: string;
+  prefill?: { name?: string; email?: string; contact?: string };
+  theme?: { color?: string };
+  handler: (response: RazorpaySuccessResponse) => void;
+  modal?: { ondismiss?: () => void };
 }
 
 declare global {
   interface Window {
-    Paytm?: {
-      CheckoutJS?: {
-        onLoad: (callback: () => void) => void;
-        init: (config: PaytmCheckoutConfig) => Promise<void>;
-        invoke: () => void;
-      };
-    };
+    Razorpay?: new (options: RazorpayOptions) => { open: () => void };
   }
 }
 
@@ -41,26 +44,9 @@ function loadScript(src: string): Promise<void> {
     }
     const script = document.createElement("script");
     script.src = src;
-    script.crossOrigin = "anonymous";
     script.onload = () => resolve();
     script.onerror = () => reject(new Error("Failed to load payment script."));
     document.body.appendChild(script);
-  });
-}
-
-/**
- * Paytm's own docs load CheckoutJS via a raw <script> tag too, but always
- * gate init()/invoke() behind Paytm.CheckoutJS.onLoad(...) rather than the
- * script element's load event — the library can still be finishing its own
- * setup when the browser fires that event.
- */
-function onCheckoutJsReady(): Promise<void> {
-  return new Promise((resolve) => {
-    if (!window.Paytm?.CheckoutJS) {
-      resolve();
-      return;
-    }
-    window.Paytm.CheckoutJS.onLoad(resolve);
   });
 }
 
@@ -114,7 +100,6 @@ function Field({
 
 function CheckoutForm() {
   const { items, subtotal, clearCart } = useCart();
-  const searchParams = useSearchParams();
   const [delivery, setDelivery] = useState<DeliveryOption>("standard");
   const [payment, setPayment] = useState<PaymentOption>("upi");
   const [placed, setPlaced] = useState(false);
@@ -123,28 +108,6 @@ function CheckoutForm() {
   const [error, setError] = useState<string | null>(null);
 
   const shipping = delivery === "express" ? 149 : subtotal >= 999 || subtotal === 0 ? 0 : 59;
-
-  // Handles the redirect-based fallback: Paytm's server callback (used by
-  // payment methods that leave the page, e.g. net banking) redirects back
-  // here with the outcome once it has finalized the order server-side.
-  useEffect(() => {
-    const paymentParam = searchParams.get("payment");
-    const orderParam = searchParams.get("order");
-
-    if (paymentParam === "success" && orderParam) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time read of the redirect's query params to set initial view state, not an ongoing sync
-      setOrderNumber(orderParam);
-      clearCart();
-      setPlaced(true);
-    } else if (paymentParam === "failed") {
-      setError("Payment failed. Please try again or choose a different payment method.");
-    } else if (paymentParam === "error") {
-      setError(
-        "We couldn't confirm your payment. If you were charged, please contact support before retrying."
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only meant to run once, off the initial query params from a payment redirect
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -193,62 +156,61 @@ function CheckoutForm() {
       }
 
       await loadScript(createData.checkoutJsUrl);
-      await onCheckoutJsReady();
 
-      if (!window.Paytm?.CheckoutJS) {
+      if (!window.Razorpay) {
         setError("Payment gateway failed to load. Please refresh and try again.");
         setSubmitting(false);
         return;
       }
 
-      const paytmOrderId = createData.paytmOrderId as string;
-
-      const confirmPayment = async () => {
-        try {
-          const verifyRes = await fetch("/api/payments/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ paytmOrderId }),
-          });
-          const verifyData = await verifyRes.json();
-          if (!verifyRes.ok) {
-            setError(verifyData.error ?? "Payment could not be confirmed.");
-            setSubmitting(false);
-            return;
-          }
-          setOrderNumber(verifyData.orderNumber ?? null);
-          clearCart();
-          setPlaced(true);
-        } catch {
-          setError(
-            "Payment may have succeeded but we couldn't confirm it. Please check your email or contact support."
-          );
-          setSubmitting(false);
-        }
-      };
-
-      await window.Paytm.CheckoutJS.init({
-        root: "",
-        flow: "DEFAULT",
-        data: {
-          orderId: paytmOrderId,
-          token: createData.txnToken,
-          tokenType: "TXN_TOKEN",
-          amount: createData.amount,
+      const razorpay = new window.Razorpay({
+        key: createData.keyId,
+        amount: createData.amount,
+        currency: createData.currency,
+        name: siteConfig.name,
+        order_id: createData.razorpayOrderId,
+        prefill: {
+          name: customerName,
+          email: customerEmail,
+          contact: shippingAddress.phone,
         },
-        handler: {
-          // Fires on lightbox lifecycle events. The event itself isn't
-          // trusted as proof of payment — it's just the cue to ask our own
-          // server (which checks Paytm's Transaction Status API directly)
-          // what actually happened.
-          notifyMerchant: (eventName) => {
-            if (eventName === "APP_CLOSED") {
-              confirmPayment();
+        theme: { color: "#171717" },
+        // Fires once Razorpay's own checks pass and hands back a signature.
+        // That signature is the proof of payment — it can only have been
+        // produced with the merchant key secret — so this is what our
+        // server actually verifies below.
+        handler: async (response) => {
+          try {
+            const verifyRes = await fetch("/api/payments/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              }),
+            });
+            const verifyData = await verifyRes.json();
+            if (!verifyRes.ok) {
+              setError(verifyData.error ?? "Payment could not be confirmed.");
+              setSubmitting(false);
+              return;
             }
-          },
+            setOrderNumber(verifyData.orderNumber ?? null);
+            clearCart();
+            setPlaced(true);
+          } catch {
+            setError(
+              "Payment may have succeeded but we couldn't confirm it. Please check your email or contact support."
+            );
+            setSubmitting(false);
+          }
+        },
+        modal: {
+          ondismiss: () => setSubmitting(false),
         },
       });
-      window.Paytm.CheckoutJS.invoke();
+      razorpay.open();
     } catch {
       setError("Could not reach the server. Please check your connection and try again.");
       setSubmitting(false);
@@ -360,8 +322,7 @@ function CheckoutForm() {
               })}
             </div>
             <p className="text-xs text-neutral-400">
-              You&apos;ll be redirected to a secure Paytm checkout to complete payment. This store
-              is currently running in test mode — no real charge will be made.
+              You&apos;ll complete payment securely via Razorpay.
             </p>
           </FormSection>
         </div>
@@ -394,9 +355,5 @@ function CheckoutForm() {
 }
 
 export default function CheckoutPage() {
-  return (
-    <Suspense fallback={null}>
-      <CheckoutForm />
-    </Suspense>
-  );
+  return <CheckoutForm />;
 }

@@ -56,8 +56,8 @@ create table if not exists orders (
   delivery_method text not null default 'standard' check (delivery_method in ('standard', 'express')),
   payment_method text not null default 'cod' check (payment_method in ('upi', 'card', 'netbanking', 'cod')),
   payment_status text not null default 'pending' check (payment_status in ('pending', 'paid', 'failed', 'cod')),
-  paytm_order_id text unique,
-  paytm_txn_id text,
+  razorpay_order_id text unique,
+  razorpay_payment_id text,
   status text not null default 'Processing' check (status in ('Processing', 'Shipped', 'Delivered', 'Cancelled')),
   subtotal numeric(10, 2) not null,
   discount numeric(10, 2) not null default 0,
@@ -83,14 +83,14 @@ create table if not exists order_items (
 create index if not exists order_items_order_id_idx on order_items (order_id);
 
 -- Holds the customer/shipping/items details for a checkout in progress,
--- keyed by the Paytm order id. Paytm's payment callback only ever reports
--- back payment fields (order id, txn id, status) — never the original
--- order contents — so this is what lets either the client-driven status
--- check or Paytm's own server callback finish creating the real order.
--- Rows are deleted once the order is finalized; a stray abandoned-checkout
--- row otherwise carries no payment info and is harmless.
+-- keyed by the Razorpay order id. Razorpay's checkout handler and webhook
+-- only ever report back payment fields (order id, payment id, signature) —
+-- never the original order contents — so this is what lets either the
+-- client-driven verify call or Razorpay's own webhook finish creating the
+-- real order. Rows are deleted once the order is finalized; a stray
+-- abandoned-checkout row otherwise carries no payment info and is harmless.
 create table if not exists pending_orders (
-  paytm_order_id text primary key,
+  razorpay_order_id text primary key,
   payload jsonb not null,
   created_at timestamptz not null default now()
 );

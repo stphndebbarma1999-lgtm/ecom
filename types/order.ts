@@ -35,8 +35,8 @@ export interface Order {
   deliveryMethod: DeliveryMethod;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
-  paytmOrderId?: string;
-  paytmTxnId?: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
   status: OrderStatus;
   subtotal: number;
   discount: number;
@@ -54,8 +54,8 @@ export interface CreateOrderInput {
   deliveryMethod: DeliveryMethod;
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
-  paytmOrderId?: string;
-  paytmTxnId?: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
   subtotal: number;
   discount: number;
   shipping: number;
