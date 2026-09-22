@@ -229,6 +229,9 @@ function CheckoutForm() {
           Thank you for shopping with us. A confirmation has been sent to your email — your order
           is being prepared for shipping.
         </p>
+        <p className="text-sm font-medium text-neutral-900">
+          Your product will be delivered within 3–4 days.
+        </p>
         <Button href="/" variant="primary" size="md" className="mt-2">
           Back to Home
         </Button>
