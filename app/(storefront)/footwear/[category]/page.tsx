@@ -29,6 +29,11 @@ export default async function FootwearCategoryPage({ params }: { params: Params 
 
   const products = await getProductsByCategory("footwear", categorySlug);
 
+  const genderPrefix = category.slug.startsWith("women-") ? "women-" : "men-";
+  const sameGenderCategories = department.categories.filter((c) =>
+    c.slug.startsWith(genderPrefix)
+  );
+
   return (
     <CategoryListing
       title={category.name}
@@ -38,7 +43,7 @@ export default async function FootwearCategoryPage({ params }: { params: Params 
         { label: category.name },
       ]}
       products={products}
-      allDepartmentCategories={department.categories}
+      allDepartmentCategories={sameGenderCategories}
       activeCategorySlug={category.slug}
       categoryBaseHref="/footwear"
     />
