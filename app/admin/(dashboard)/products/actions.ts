@@ -43,6 +43,8 @@ function buildProductInput(formData: FormData): ProductInput {
     description: String(formData.get("description") ?? "").trim(),
     details: splitLines(formData.get("details")),
     materialAndCare: splitLines(formData.get("materialAndCare")),
+    ingredients: splitLines(formData.get("ingredients")),
+    howToUse: splitLines(formData.get("howToUse")),
     price,
     originalPrice: originalPriceRaw ? Number(originalPriceRaw) : undefined,
     rating: Number(formData.get("rating") ?? 0),

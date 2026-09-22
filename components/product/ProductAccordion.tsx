@@ -11,6 +11,8 @@ interface Section {
 }
 
 function buildSections(product: Product): Section[] {
+  const isBeauty = product.department === "beauty";
+
   return [
     {
       title: "Product Details",
@@ -22,15 +24,32 @@ function buildSections(product: Product): Section[] {
             `Brand: ${product.brand}`,
           ],
     },
-    {
-      title: "Material & Care",
-      content: product.materialAndCare?.length
-        ? product.materialAndCare
-        : [
-            "Refer to the product label for fabric composition and care instructions.",
-            "Machine wash cold with like colors. Do not bleach. Tumble dry low.",
-          ],
-    },
+    isBeauty
+      ? {
+          title: "Ingredients",
+          content: product.ingredients?.length
+            ? product.ingredients
+            : ["Refer to the product label for the full ingredient list."],
+        }
+      : {
+          title: "Material & Care",
+          content: product.materialAndCare?.length
+            ? product.materialAndCare
+            : [
+                "Refer to the product label for fabric composition and care instructions.",
+                "Machine wash cold with like colors. Do not bleach. Tumble dry low.",
+              ],
+        },
+    ...(isBeauty
+      ? [
+          {
+            title: "How to Use",
+            content: product.howToUse?.length
+              ? product.howToUse
+              : ["Refer to the product label for usage instructions."],
+          },
+        ]
+      : []),
     {
       title: "Shipping",
       content: [

@@ -44,21 +44,6 @@ export const mainNav: NavItem[] = [
             { label: "Formal Pants", href: "/men/formal-pants" },
           ],
         },
-        {
-          heading: "Footwear",
-          links: [
-            { label: "Casual Shoes", href: "/men/casual-shoes" },
-            { label: "Formal Shoes", href: "/men/formal-shoes" },
-            { label: "Sports Shoes", href: "/men/sports-shoes" },
-          ],
-        },
-        {
-          heading: "Accessories",
-          links: [
-            { label: "Watches", href: "/men/watches" },
-            { label: "Sunglasses", href: "/men/sunglasses" },
-          ],
-        },
       ],
       image: {
         src: "",
@@ -83,18 +68,6 @@ export const mainNav: NavItem[] = [
             { label: "Jumpsuits & More", href: "/women/jumpsuits" },
             { label: "Activewear", href: "/women/activewear" },
           ],
-        },
-        {
-          heading: "Accessories",
-          links: [
-            { label: "Handbags", href: "/women/handbags" },
-            { label: "Sunglasses", href: "/women/sunglasses" },
-            { label: "Watches", href: "/women/watches" },
-          ],
-        },
-        {
-          heading: "Footwear",
-          links: [{ label: "Footwear", href: "/women/footwear" }],
         },
       ],
       image: {
@@ -133,6 +106,84 @@ export const mainNav: NavItem[] = [
       },
     },
   },
+  {
+    label: "Footwear",
+    href: "/footwear",
+    megaMenu: {
+      columns: [
+        {
+          heading: "Men",
+          links: [
+            { label: "Casual Shoes", href: "/footwear/men-casual-shoes" },
+            { label: "Formal Shoes", href: "/footwear/men-formal-shoes" },
+            { label: "Loafers", href: "/footwear/men-loafers" },
+            { label: "Sneakers", href: "/footwear/men-sneakers" },
+            { label: "Sports Shoes", href: "/footwear/men-sports-shoes" },
+            { label: "Sandals & Floaters", href: "/footwear/men-sandals-floaters" },
+            { label: "Slippers", href: "/footwear/men-slippers" },
+          ],
+        },
+        {
+          heading: "Women",
+          links: [
+            { label: "Sandals", href: "/footwear/women-sandals" },
+            { label: "Flats", href: "/footwear/women-flats" },
+            { label: "Heels", href: "/footwear/women-heels" },
+            { label: "Casual Shoes", href: "/footwear/women-casual-shoes" },
+            { label: "Sneakers", href: "/footwear/women-sneakers" },
+            { label: "Sports Shoes", href: "/footwear/women-sports-shoes" },
+            { label: "Slippers", href: "/footwear/women-slippers" },
+          ],
+        },
+      ],
+      image: {
+        src: "",
+        alt: "Footwear collection",
+        href: "/footwear",
+      },
+    },
+  },
+  {
+    label: "Sunglasses",
+    href: "/sunglasses",
+    megaMenu: {
+      columns: [
+        {
+          heading: "Shop",
+          links: [
+            { label: "Men", href: "/sunglasses/men" },
+            { label: "Women", href: "/sunglasses/women" },
+          ],
+        },
+      ],
+      image: {
+        src: "",
+        alt: "Sunglasses collection",
+        href: "/sunglasses",
+      },
+    },
+  },
+  {
+    label: "Watches",
+    href: "/watches",
+    megaMenu: {
+      columns: [
+        {
+          heading: "Shop",
+          links: [
+            { label: "Analog Watches", href: "/watches/analog-watches" },
+            { label: "Sports Watches", href: "/watches/sports-watches" },
+            { label: "Smart Watches", href: "/watches/smart-watches" },
+          ],
+        },
+      ],
+      image: {
+        src: "",
+        alt: "Watches collection",
+        href: "/watches",
+      },
+    },
+  },
   { label: "New Arrivals", href: "/new-arrivals" },
   { label: "Best Sellers", href: "/best-sellers" },
   { label: "Contact", href: "/contact" },
@@ -157,6 +208,9 @@ export const footerLinks = {
     { label: "Men", href: "/men" },
     { label: "Women", href: "/women" },
     { label: "Beauty", href: "/beauty" },
+    { label: "Footwear", href: "/footwear" },
+    { label: "Sunglasses", href: "/sunglasses" },
+    { label: "Watches", href: "/watches" },
     { label: "New Arrivals", href: "/new-arrivals" },
     { label: "Best Sellers", href: "/best-sellers" },
   ],

@@ -17,7 +17,14 @@ import { readFileSync, existsSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
-import { menCategories, womenCategories, beautyCategories } from "../data/categories";
+import {
+  menCategories,
+  womenCategories,
+  beautyCategories,
+  footwearCategories,
+  sunglassesCategories,
+  watchesCategories,
+} from "../data/categories";
 import { products } from "../data/products";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -52,7 +59,14 @@ async function main() {
 
   const supabase = createClient(url, serviceRoleKey);
 
-  const allCategories = [...menCategories, ...womenCategories, ...beautyCategories];
+  const allCategories = [
+    ...menCategories,
+    ...womenCategories,
+    ...beautyCategories,
+    ...footwearCategories,
+    ...sunglassesCategories,
+    ...watchesCategories,
+  ];
   console.log(`Seeding ${allCategories.length} categories...`);
   const { error: catError } = await supabase
     .from("categories")

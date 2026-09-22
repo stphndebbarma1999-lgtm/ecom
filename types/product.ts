@@ -1,4 +1,4 @@
-export type Department = "men" | "women" | "beauty";
+export type Department = "men" | "women" | "beauty" | "footwear" | "sunglasses" | "watches";
 
 export interface ProductColor {
   name: string;
@@ -16,6 +16,8 @@ export interface Product {
   description: string;
   details?: string[];
   materialAndCare?: string[];
+  ingredients?: string[];
+  howToUse?: string[];
   price: number;
   originalPrice?: number;
   discountPercentage?: number;
@@ -41,6 +43,8 @@ export interface ProductInput {
   description: string;
   details: string[];
   materialAndCare: string[];
+  ingredients: string[];
+  howToUse: string[];
   price: number;
   originalPrice?: number;
   rating: number;

@@ -41,6 +41,21 @@ const DEPARTMENT_META: Record<Department, { name: string; heading: string; descr
     heading: "Beauty Edit",
     description: "Skincare, makeup, haircare and fragrance essentials.",
   },
+  footwear: {
+    name: "Footwear",
+    heading: "Footwear",
+    description: "Shoes, sandals and slippers for men and women.",
+  },
+  sunglasses: {
+    name: "Sunglasses",
+    heading: "Sunglasses",
+    description: "Sunglasses for men and women.",
+  },
+  watches: {
+    name: "Watches",
+    heading: "Watches",
+    description: "Analog, sports and smart watches.",
+  },
 };
 
 export async function listAllCategories(): Promise<Category[]> {

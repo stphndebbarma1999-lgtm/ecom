@@ -32,11 +32,10 @@ export const defaultHomepageContent: HomepageContent = {
   featuredCategories: [
     { name: "Men", href: "/men", image: "" },
     { name: "Women", href: "/women", image: "" },
-    { name: "Footwear", href: "/women/footwear", image: "" },
+    { name: "Footwear", href: "/footwear", image: "" },
     { name: "Beauty", href: "/beauty", image: "" },
-    { name: "Watches", href: "/men/watches", image: "" },
-    { name: "Handbags", href: "/women/handbags", image: "" },
+    { name: "Watches", href: "/watches", image: "" },
+    { name: "Sunglasses", href: "/sunglasses", image: "" },
     { name: "Activewear", href: "/women/activewear", image: "" },
-    { name: "Sunglasses", href: "/men/sunglasses", image: "" },
   ],
 };

@@ -6,7 +6,14 @@ import { deleteCategoryAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-const departmentLabel: Record<string, string> = { men: "Men", women: "Women", beauty: "Beauty" };
+const departmentLabel: Record<string, string> = {
+  men: "Men",
+  women: "Women",
+  beauty: "Beauty",
+  footwear: "Footwear",
+  sunglasses: "Sunglasses",
+  watches: "Watches",
+};
 
 export default async function AdminCategoriesPage() {
   const categories = await listAllCategories();
@@ -14,6 +21,9 @@ export default async function AdminCategoriesPage() {
     men: categories.filter((c) => c.department === "men"),
     women: categories.filter((c) => c.department === "women"),
     beauty: categories.filter((c) => c.department === "beauty"),
+    footwear: categories.filter((c) => c.department === "footwear"),
+    sunglasses: categories.filter((c) => c.department === "sunglasses"),
+    watches: categories.filter((c) => c.department === "watches"),
   };
 
   return (

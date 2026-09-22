@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/types/product";
 import type { Category } from "@/types/category";
@@ -35,6 +35,8 @@ const inputClass =
 
 export default function ProductForm({ action, categories, product, submitLabel }: ProductFormProps) {
   const [state, formAction, pending] = useActionState(action, {});
+  const [department, setDepartment] = useState(product?.department ?? "men");
+  const isBeauty = department === "beauty";
 
   const colorsText = product?.colors.map((c) => `${c.name}:${c.hex}`).join("\n") ?? "";
 
@@ -54,12 +56,16 @@ export default function ProductForm({ action, categories, product, submitLabel }
           <select
             name="department"
             required
-            defaultValue={product?.department ?? "men"}
+            value={department}
+            onChange={(e) => setDepartment(e.target.value as Product["department"])}
             className={inputClass}
           >
             <option value="men">Men</option>
             <option value="women">Women</option>
             <option value="beauty">Beauty</option>
+            <option value="footwear">Footwear</option>
+            <option value="sunglasses">Sunglasses</option>
+            <option value="watches">Watches</option>
           </select>
         </Field>
         <Field label="Category" hint="Must match an existing category slug, e.g. t-shirts">
@@ -106,15 +112,37 @@ export default function ProductForm({ action, categories, product, submitLabel }
             className={inputClass}
           />
         </Field>
-        <Field label="Material & Care" hint="One line per line">
+        {isBeauty ? (
+          <Field label="Ingredients" hint="One per line">
+            <textarea
+              name="ingredients"
+              rows={4}
+              defaultValue={product?.ingredients?.join("\n")}
+              className={inputClass}
+            />
+          </Field>
+        ) : (
+          <Field label="Material & Care" hint="One line per line">
+            <textarea
+              name="materialAndCare"
+              rows={4}
+              defaultValue={product?.materialAndCare?.join("\n")}
+              className={inputClass}
+            />
+          </Field>
+        )}
+      </div>
+
+      {isBeauty && (
+        <Field label="How to Use" hint="One step per line">
           <textarea
-            name="materialAndCare"
+            name="howToUse"
             rows={4}
-            defaultValue={product?.materialAndCare?.join("\n")}
+            defaultValue={product?.howToUse?.join("\n")}
             className={inputClass}
           />
         </Field>
-      </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Field label="Price (₹)">
@@ -187,9 +215,11 @@ export default function ProductForm({ action, categories, product, submitLabel }
         />
       </Field>
 
-      <Field label="Colors" hint='One per line, format "Name:#hexcode" — e.g. Black:#111111'>
-        <textarea name="colors" rows={3} defaultValue={colorsText} className={inputClass} />
-      </Field>
+      {!isBeauty && (
+        <Field label="Colors" hint='One per line, format "Name:#hexcode" — e.g. Black:#111111'>
+          <textarea name="colors" rows={3} defaultValue={colorsText} className={inputClass} />
+        </Field>
+      )}
 
       <Field label="Tags" hint="Comma-separated, used for search matching">
         <input name="tags" defaultValue={product?.tags.join(", ")} className={inputClass} />

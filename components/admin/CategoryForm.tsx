@@ -29,6 +29,9 @@ export default function CategoryForm({ action, category, submitLabel }: Category
           <option value="men">Men</option>
           <option value="women">Women</option>
           <option value="beauty">Beauty</option>
+          <option value="footwear">Footwear</option>
+          <option value="sunglasses">Sunglasses</option>
+          <option value="watches">Watches</option>
         </select>
       </label>
 

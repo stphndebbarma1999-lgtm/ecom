@@ -16,7 +16,7 @@ const POPULAR_SEARCHES = [
   "Sarees",
   "Sunglasses",
   "Skincare",
-  "Handbags",
+  "Watches",
 ];
 
 export default function SearchOverlay() {

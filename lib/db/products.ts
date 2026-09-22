@@ -14,6 +14,8 @@ interface ProductRow {
   description: string;
   details: string[] | null;
   material_and_care: string[] | null;
+  ingredients: string[] | null;
+  how_to_use: string[] | null;
   price: number;
   original_price: number | null;
   rating: number;
@@ -39,6 +41,8 @@ function mapRow(row: ProductRow): Product {
     description: row.description,
     details: row.details ?? undefined,
     materialAndCare: row.material_and_care ?? undefined,
+    ingredients: row.ingredients ?? undefined,
+    howToUse: row.how_to_use ?? undefined,
     price: Number(row.price),
     originalPrice: row.original_price !== null ? Number(row.original_price) : undefined,
     discountPercentage: discountPercentage(
@@ -76,6 +80,8 @@ function inputToRow(input: ProductInput) {
     description: input.description,
     details: input.details,
     material_and_care: input.materialAndCare,
+    ingredients: input.ingredients,
+    how_to_use: input.howToUse,
     price: input.price,
     original_price: input.originalPrice ?? null,
     rating: input.rating,
@@ -91,7 +97,7 @@ function inputToRow(input: ProductInput) {
 }
 
 const SELECT_COLUMNS =
-  "id, slug, name, brand, department, category, subcategory, description, details, material_and_care, price, original_price, rating, review_count, images, colors, sizes, stock, is_new, is_best_seller, tags";
+  "id, slug, name, brand, department, category, subcategory, description, details, material_and_care, ingredients, how_to_use, price, original_price, rating, review_count, images, colors, sizes, stock, is_new, is_best_seller, tags";
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const { data, error } = await getSupabaseAdmin()

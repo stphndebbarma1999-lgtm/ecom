@@ -7,11 +7,6 @@ export const menCategories: Category[] = [
   { name: "Jeans", slug: "jeans", department: "men", image: "" },
   { name: "Trousers", slug: "trousers", department: "men", image: "" },
   { name: "Formal Pants", slug: "formal-pants", department: "men", image: "" },
-  { name: "Casual Shoes", slug: "casual-shoes", department: "men", image: "" },
-  { name: "Formal Shoes", slug: "formal-shoes", department: "men", image: "" },
-  { name: "Sports Shoes", slug: "sports-shoes", department: "men", image: "" },
-  { name: "Watches", slug: "watches", department: "men", image: "" },
-  { name: "Sunglasses", slug: "sunglasses", department: "men", image: "" },
 ];
 
 export const womenCategories: Category[] = [
@@ -21,10 +16,6 @@ export const womenCategories: Category[] = [
   { name: "Kurta Sets", slug: "kurta-sets", department: "women", image: "" },
   { name: "Sarees", slug: "sarees", department: "women", image: "" },
   { name: "Jumpsuits & More", slug: "jumpsuits", department: "women", image: "" },
-  { name: "Handbags", slug: "handbags", department: "women", image: "" },
-  { name: "Sunglasses", slug: "sunglasses", department: "women", image: "" },
-  { name: "Watches", slug: "watches", department: "women", image: "" },
-  { name: "Footwear", slug: "footwear", department: "women", image: "" },
   { name: "Activewear", slug: "activewear", department: "women", image: "" },
 ];
 
@@ -42,13 +33,56 @@ export const beautyCategories: Category[] = [
   { name: "Korean Beauty", slug: "korean-beauty", department: "beauty", image: "" },
 ];
 
+export const footwearCategories: Category[] = [
+  { name: "Men's Casual Shoes", slug: "men-casual-shoes", department: "footwear", image: "" },
+  { name: "Men's Formal Shoes", slug: "men-formal-shoes", department: "footwear", image: "" },
+  { name: "Men's Loafers", slug: "men-loafers", department: "footwear", image: "" },
+  { name: "Men's Sneakers", slug: "men-sneakers", department: "footwear", image: "" },
+  { name: "Men's Sports Shoes", slug: "men-sports-shoes", department: "footwear", image: "" },
+  {
+    name: "Men's Sandals & Floaters",
+    slug: "men-sandals-floaters",
+    department: "footwear",
+    image: "",
+  },
+  { name: "Men's Slippers", slug: "men-slippers", department: "footwear", image: "" },
+  { name: "Women's Sandals", slug: "women-sandals", department: "footwear", image: "" },
+  { name: "Women's Flats", slug: "women-flats", department: "footwear", image: "" },
+  { name: "Women's Heels", slug: "women-heels", department: "footwear", image: "" },
+  {
+    name: "Women's Casual Shoes",
+    slug: "women-casual-shoes",
+    department: "footwear",
+    image: "",
+  },
+  { name: "Women's Sneakers", slug: "women-sneakers", department: "footwear", image: "" },
+  {
+    name: "Women's Sports Shoes",
+    slug: "women-sports-shoes",
+    department: "footwear",
+    image: "",
+  },
+  { name: "Women's Slippers", slug: "women-slippers", department: "footwear", image: "" },
+];
+
+export const sunglassesCategories: Category[] = [
+  { name: "Men", slug: "men", department: "sunglasses", image: "" },
+  { name: "Women", slug: "women", department: "sunglasses", image: "" },
+];
+
+export const watchesCategories: Category[] = [
+  { name: "Analog Watches", slug: "analog-watches", department: "watches", image: "" },
+  { name: "Sports Watches", slug: "sports-watches", department: "watches", image: "" },
+  { name: "Smart Watches", slug: "smart-watches", department: "watches", image: "" },
+];
+
 export const departments: DepartmentInfo[] = [
   {
     slug: "men",
     name: "Men",
     heading: "Men's Collection",
     description:
-      "Clothing, footwear and accessories for men — from everyday essentials to formal wear.",
+      "Clothing and accessories for men — from everyday essentials to formal wear.",
     categories: menCategories,
   },
   {
@@ -65,6 +99,27 @@ export const departments: DepartmentInfo[] = [
     heading: "Beauty Edit",
     description: "Skincare, makeup, haircare and fragrance essentials.",
     categories: beautyCategories,
+  },
+  {
+    slug: "footwear",
+    name: "Footwear",
+    heading: "Footwear",
+    description: "Shoes, sandals and slippers for men and women.",
+    categories: footwearCategories,
+  },
+  {
+    slug: "sunglasses",
+    name: "Sunglasses",
+    heading: "Sunglasses",
+    description: "Sunglasses for men and women.",
+    categories: sunglassesCategories,
+  },
+  {
+    slug: "watches",
+    name: "Watches",
+    heading: "Watches",
+    description: "Analog, sports and smart watches.",
+    categories: watchesCategories,
   },
 ];
 
@@ -84,4 +139,7 @@ export const allCategories: Category[] = [
   ...menCategories,
   ...womenCategories,
   ...beautyCategories,
+  ...footwearCategories,
+  ...sunglassesCategories,
+  ...watchesCategories,
 ];
